@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-ao">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Moçâmedes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-umbrella-beach"></i> Portal Moçâmedes
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Início</a></li>
+            <li><a href="{{ url_for('feed') }}">Comunidade</a></li>
+            <li><a href="{{ url_for('diretorio') }}">Diretório</a></li>
+            
+            <li><a href="{{ url_for('marketplace') }}">Serviços</a></li>
+
+            {% if session.get('user_id') %}
+                {% if session.get('user_funcao') == 'admin' %}
+                    <li><a href="{{ url_for('admin') }}" style="color: #f59e0b;">Painel Admin</a></li>
+                {% endif %}
+
+                <li class="user-menu">
+                    <span>Olá, {{ session.get('user_nome').split()[0] }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-entrar" style="background-color: #ef4444;">Sair</a>
+                </li>
+
+            {% else %}
+                <li><a href="{{ url_for('login') }}" class="btn-entrar">Entrar / Registrar</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Portal Comunitário de Moçâmedes - TCC</p>
+    </footer>
+
+</body>
+</html>

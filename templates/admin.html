@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Painel de Gestão</h2>
+        <div class="user-info">
+            <span>Admin: <strong>{{ usuario }}</strong></span>
+            <a href="/logout" class="btn-logout">Sair</a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert-success">
+                <i class="fas fa-check-circle"></i> {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin-grid">
+        
+        <div class="admin-card">
+            <h3><i class="fas fa-newspaper"></i> Nova Postagem</h3>
+            <form method="POST" action="/admin">
+                <input type="hidden" name="acao" value="nova_postagem">
+                
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" name="titulo" required placeholder="Ex: Campanha de Vacinação">
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select name="categoria" class="form-select">
+                        <option value="Notícia">Notícia</option>
+                        <option value="Utilidade Pública">Utilidade Pública</option>
+                        <option value="Evento">Evento</option>
+                        <option value="Esporte">Esporte</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Conteúdo</label>
+                    <textarea name="conteudo" rows="4" class="form-textarea" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Publicar</button>
+            </form>
+        </div>
+
+        <div class="admin-card" style="grid-column: span 2;">
+            <h3><i class="fas fa-map-marker-alt"></i> Adicionar Local/Serviço</h3>
+            <p style="color: #666; font-size: 0.9rem;">Preencha os detalhes completos para a página de turismo/serviços.</p>
+
+            <form method="POST" action="/admin" enctype="multipart/form-data" class="form-grid">
+                <input type="hidden" name="acao" value="novo_item_diretorio">
+                
+                <div class="form-group">
+                    <label>Nome do Local</label>
+                    <input type="text" name="nome" required placeholder="Ex: Hospital Central">
+                </div>
+
+                <div class="form-group">
+                    <label>Categoria Principal</label>
+                    <select name="categoria" class="form-select">
+                        <option value="Saúde">Saúde</option>
+                        <option value="Educação">Educação</option>
+                        <option value="Comércio">Comércio & Serviços</option>
+                        <option value="Turismo">Turismo & Lazer</option>
+                        <option value="Instituições">Instituições Públicas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subcategoria</label>
+                    <input type="text" name="subcategoria" placeholder="Ex: Farmácia, Hotel...">
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Gestão</label>
+                    <select name="tipo" class="form-select">
+                        <option value="Publico">Público (Governo)</option>
+                        <option value="Privado">Privado (Empresa)</option>
+                        <option value="ONG">ONG</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" name="telefone" placeholder="+244...">
+                </div>
+
+                <div class="form-group">
+                    <label>Horário</label>
+                    <input type="text" name="horario" placeholder="Ex: 08h às 18h">
+                </div>
+
+                <div class="form-group full-width" style="background: #f8fafc; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                    <label style="color: #475569;"><i class="fas fa-camera"></i> Foto de Capa (Fachada)</label>
+                    <input type="file" name="imagem" accept="image/*">
+                    <small style="color: #64748b; display: block; margin-top: 5px;">Recomendado: Imagem horizontal (JPG ou PNG).</small>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Endereço Completo</label>
+                    <input type="text" name="endereco" placeholder="Rua...">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Resumo</label>
+                    <input type="text" name="descricao" maxlength="100" placeholder="Frase curta...">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>História Completa</label>
+                    <textarea name="historia" rows="5" class="form-textarea"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit full-width" style="background-color: #f59e0b;">Salvar no Diretório</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="management-section">
+        <hr style="margin: 40px 0; border-top: 2px solid #e2e8f0;">
+        <h2>Conteúdo Cadastrado</h2>
+
+        <div class="table-container">
+            <h3>Diretório</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Categoria/Sub</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in itens_diretorio %}
+                    <tr>
+                        <td>{{ item.nome }}</td>
+                        <td>
+                            {% if item.tipo == 'Publico' %}
+                                <span class="badge" style="background:#dbeafe; color:#1e40af;">Público</span>
+                            {% else %}
+                                <span class="badge" style="background:#fce7f3; color:#9d174d;">Privado</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.categoria }} <small>({{ item.subcategoria }})</small></td>
+                        <td><button disabled style="opacity:0.5;">Editar</button></td> </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Específico para o Form Grid do Admin */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Duas colunas */
+        gap: 15px;
+    }
+    .full-width {
+        grid-column: span 2; /* Ocupa a largura total */
+    }
+    @media(max-width: 700px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: span 1; }
+        .admin-card { grid-column: span 1 !important; }
+    }
+</style>
+{% endblock %}

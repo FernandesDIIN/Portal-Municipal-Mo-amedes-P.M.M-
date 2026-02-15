@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-box" style="max-width: 500px;">
+        <h2>Criar Conta</h2>
+        <p>Junte-se à comunidade digital de Moçâmedes.</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert-error">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" name="nome" placeholder="Seu nome" required>
+            </div>
+
+            <div class="form-group">
+                <label>Telefone (Recomendado)</label>
+                <input type="text" name="telefone" placeholder="9xx xxx xxx">
+            </div>
+
+            <div class="form-group">
+                <label>E-mail (Opcional)</label>
+                <input type="email" name="email" placeholder="seu@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" required>
+            </div>
+
+            <div class="form-group">
+                <label>Biografia (Opcional)</label>
+                <textarea name="bio" rows="3" class="form-textarea" placeholder="Conte um pouco sobre você..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-login-submit" style="background-color: #16a34a;">Registrar-se</button>
+        </form>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/login" style="color: #666;">Já tenho conta. Fazer Login.</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

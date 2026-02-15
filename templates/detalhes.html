@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="details-container">
+    
+    <a href="{{ url_for('diretorio') }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Voltar ao Diretório
+    </a>
+
+    <div class="details-hero" style="background-image: url('{{ url_for('static', filename='uploads/capas/' + item.imagem_capa) }}');">
+        <div class="hero-overlay">
+            <span class="badge-hero {{ item.categoria }}">{{ item.categoria }}</span>
+            <h1>{{ item.nome }}</h1>
+            <p class="sub-hero">{{ item.subcategoria }}</p>
+        </div>
+    </div>
+
+    <div class="details-content-grid">
+        
+        <div class="main-info">
+            <div class="info-header">
+                <h2>Sobre este local</h2>
+                {% if item.tipo == 'Publico' %}
+                    <span class="type-badge publico">Instituição Pública</span>
+                {% else %}
+                    <span class="type-badge privado">Instituição Privada</span>
+                {% endif %}
+            </div>
+
+            <p class="lead-text">{{ item.descricao_curta }}</p>
+            
+            <hr class="divider">
+
+            <h3>História e Informações</h3>
+            <div class="rich-text">
+                {% if item.historia_completa %}
+                    {{ item.historia_completa | replace('\n', '<br>') | safe }}
+                {% else %}
+                    <p><em>Nenhuma informação histórica cadastrada para este local.</em></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="sidebar-info">
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> Informações Úteis</h3>
+                
+                <ul class="info-list">
+                    <li>
+                        <strong><i class="fas fa-map-marker-alt"></i> Endereço:</strong>
+                        <span>{{ item.endereco }}</span>
+                    </li>
+                    <li>
+                        <strong><i class="far fa-clock"></i> Horário:</strong>
+                        <span>{{ item.horario }}</span>
+                    </li>
+                    <li>
+                        <strong><i class="fas fa-phone-alt"></i> Telefone:</strong>
+                        <span style="font-size: 1.1rem; font-weight: bold; color: #1e293b;">{{ item.telefone }}</span>
+                    </li>
+                </ul>
+
+                <a href="tel:{{ item.telefone | replace(' ', '') }}" class="btn-call-action">
+                    <i class="fas fa-phone"></i> Ligar Agora
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

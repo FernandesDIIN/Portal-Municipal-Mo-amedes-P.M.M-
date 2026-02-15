@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="feed-container">
+    <div class="feed-header">
+        <h2>Feed da Comunidade</h2>
+        <p>Notícias, eventos e classificados de Moçâmedes.</p>
+        <a href="/admin" class="btn-create">+ Nova Postagem</a>
+    </div>
+
+    <div class="posts-list">
+        {% for post in postagens %}
+            <div class="post-card">
+                <div class="post-tag {{ post.categoria }}">{{ post.categoria }}</div>
+                <h3>{{ post.titulo }}</h3>
+                <p>{{ post.conteudo }}</p>
+                <span class="post-date">Publicado em: {{ post.data_criacao }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

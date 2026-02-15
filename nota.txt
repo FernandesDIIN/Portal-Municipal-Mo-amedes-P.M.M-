@@ -1,0 +1,5 @@
+admin: admin@mocamedes.ao
+senha: admin123
+
+user test: 922806216
+senha: 123456

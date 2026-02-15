@@ -1,0 +1,938 @@
+/* Reset básico para limpar margens padrão */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- Navbar --- */
+header {
+    background-color: #2c3e50; /* Azul escuro */
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #3498db; /* Azul claro ao passar o mouse */
+}
+
+.btn-login {
+    background-color: #3498db;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+.btn-login:hover {
+    background-color: #2980b9;
+    color: white !important;
+}
+
+/* --- Container Principal --- */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    flex: 1; /* Empurra o rodapé para baixo */
+}
+
+/* --- Rodapé --- */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+/* --- Classes Utilitárias (usaremos depois) --- */
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+input, button {
+    padding: 10px;
+    width: 100%;
+    margin-top: 5px;
+}
+/* --- ESTILOS DA HOME PAGE --- */
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    gap: 48px; /* Espaço entre seções (space-y-12) */
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 400px;
+    background-color: #2563eb; /* blue-600 */
+    border-radius: 24px; /* rounded-3xl */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    color: white;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    mix-blend-mode: overlay; /* Efeito de mistura do Tailwind */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 650px;
+    padding: 0 1rem;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem; /* text-4xl */
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.hero-content p {
+    font-size: 1.25rem; /* text-xl */
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s;
+    display: inline-block;
+}
+
+.btn-white {
+    background-color: white;
+    color: #1d4ed8; /* blue-700 */
+}
+.btn-white:hover { background-color: #eff6ff; }
+
+.btn-blue {
+    background-color: #1e40af; /* blue-800 */
+    color: white;
+    border: 1px solid #60a5fa;
+}
+.btn-blue:hover { background-color: #1e3a8a; }
+
+/* Grid de Categorias */
+.categories-section h2 {
+    font-size: 1.5rem;
+    color: #1e293b; /* slate-800 */
+    margin-bottom: 1.5rem;
+}
+
+.grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsivo igual ao Tailwind */
+    gap: 24px;
+}
+
+.card-item {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s;
+    display: block;
+}
+
+.card-item:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.icon-box {
+    font-size: 1.875rem; /* text-3xl */
+    margin-bottom: 1rem;
+}
+
+.text-blue { color: #2563eb; }
+.text-green { color: #16a34a; }
+.text-amber { color: #d97706; }
+.text-purple { color: #9333ea; }
+
+.card-item h3 {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.card-item p {
+    color: #64748b; /* slate-500 */
+    font-size: 0.875rem;
+}
+
+/* Info Section */
+.info-section {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+/* Responsividade para celular: empilha o texto e a imagem */
+@media (max-width: 768px) {
+    .info-section {
+        flex-direction: column;
+    }
+    .info-image {
+        height: 250px;
+        width: 100%;
+    }
+}
+
+.info-text {
+    flex: 1;
+}
+
+.info-text h2 {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.info-text p {
+    color: #475569;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.link-arrow {
+    color: #2563eb;
+    font-weight: bold;
+    text-decoration: none;
+}
+.link-arrow:hover { text-decoration: underline; }
+
+.info-image {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    min-height: 300px;
+}
+
+.info-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- PÁGINA DE FEED --- */
+.feed-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+}
+
+.btn-create {
+    background-color: #16a34a; /* Verde */
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+.btn-create:hover { background-color: #15803d; }
+
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.post-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.post-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    background-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Cores específicas para categorias se quiser (opcional) */
+.post-tag.Eventos { background-color: #fce7f3; color: #9d174d; } /* Rosa */
+.post-tag.Saúde { background-color: #dcfce7; color: #166534; } /* Verde */
+.post-tag.Comércio { background-color: #fff7ed; color: #9a3412; } /* Laranja */
+
+.post-card h3 {
+    margin-bottom: 10px;
+    color: #1e293b;
+}
+
+.post-card p {
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.post-date {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+/* --- TELA DE LOGIN --- */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-box h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.login-box p {
+    color: #7f8c8d;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border: 1px solid #fecaca;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.btn-login-submit {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-login-submit:hover {
+    background-color: #1a5276;
+}
+
+/* --- PAINEL ADMIN --- */
+.admin-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-logout {
+    color: #e74c3c; /* Vermelho */
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #e74c3c;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+.btn-logout:hover { background: #e74c3c; color: white; }
+
+/* Grid de duas colunas */
+.admin-grid {
+    display: grid;
+    /* Isso faz criar colunas automáticas de no mínimo 300px cada */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 20px;
+}
+/* No celular vira uma coluna só */
+@media (max-width: 768px) {
+   
+    .admin-grid { grid-template-columns: 1fr; }
+}
+
+.admin-card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.admin-card h3 {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+/* Estilo dos Inputs do Admin */
+.form-select, .form-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    margin-top: 5px;
+    font-family: inherit; /* Usa a mesma fonte do site */
+}
+
+.btn-submit {
+    background-color: #2ecc71; /* Verde Sucesso */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 15px;
+    transition: background 0.3s;
+}
+.btn-submit:hover { background-color: #27ae60; }
+
+.btn-submit.secondary { background-color: #34495e; } /* Botão Cinza/Azul */
+.btn-submit.secondary:hover { background-color: #2c3e50; }
+
+.user-list { list-style: none; margin-top: 10px; }
+.user-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #bbf7d0;
+}
+
+/* --- PÁGINA DIRETÓRIO --- */
+/* --- ESTILOS DO DIRETÓRIO (Versão com Fotos) --- */
+
+.directory-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.directory-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Botões de Filtro */
+.filter-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-filter {
+    text-decoration: none;
+    padding: 8px 16px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    border: 1px solid #e2e8f0;
+}
+.btn-filter:hover {
+    background: #2c3e50;
+    color: white;
+}
+
+/* Grid */
+.directory-grid {
+    display: grid;
+    /* Colunas responsivas: min 300px, max o que der */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Cartão */
+.directory-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden; /* Importante para a imagem não vazar */
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.directory-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+/* Imagem do Cartão */
+.card-image {
+    width: 100%;
+    height: 200px; /* Altura fixa para alinhar tudo */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-color: #cbd5e1; /* Cor cinza se a imagem falhar */
+}
+
+/* Badges (Etiquetas) */
+.category-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.type-badge {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.type-badge.publico { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.type-badge.privado { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+.type-badge.ong { background: #f3f4f6; color: #374151; }
+
+/* Conteúdo do Cartão */
+.card-content {
+    padding: 20px;
+    flex-grow: 1; /* Faz o conteúdo ocupar o espaço restante */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.card-title {
+    font-size: 1.15rem;
+    margin: 0;
+    color: #1e293b;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.subcategoria {
+    color: #f59e0b;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.description {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    flex-grow: 1; /* Empurra os contatos para baixo */
+}
+
+.contact-info {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 15px;
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.info-row i {
+    color: #94a3b8;
+    width: 16px;
+    text-align: center;
+}
+
+.btn-details {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background: #f8fafc;
+    color: #334155;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid #e2e8f0;
+    transition: 0.2s;
+}
+
+.btn-details:hover {
+    background: #2c3e50;
+    color: white;
+    border-color: #2c3e50;
+}
+
+/* --- CORREÇÃO DO MENU (NAVBAR) --- */
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-links a {
+    color: #1e293b !important; /* Cor cinza escuro quase preto */
+    font-weight: 600;
+    opacity: 1 !important;
+}
+
+.nav-links a:hover {
+    color: #16a34a !important; /* Verde ao passar o mouse */
+}
+
+/* --- ATUALIZAÇÕES DO MARKETPLACE --- */
+
+/* Linha do título e botão Anunciar retangular */
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-anunciar-top {
+    background-color: #16a34a; /* Verde */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+/* Ajuste da Barra de Pesquisa para 80% / 20% */
+.search-proporcional {
+    display: flex;
+    gap: 0; /* Remove espaço entre input e botão */
+}
+.search-proporcional input {
+    flex: 4; /* Ocupa 4 partes (80%) */
+    border-radius: 6px 0 0 6px; /* Arredonda só a esquerda */
+    border-right: none;
+}
+.search-proporcional button {
+    flex: 1; /* Ocupa 1 parte (20%) */
+    border-radius: 0 6px 6px 0; /* Arredonda só a direita */
+}
+
+/* Nova Área de Contato do Cartão */
+.contact-area-new {
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    padding: 15px 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
+.contact-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+}
+.contact-number {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 5px 0 10px 0;
+    user-select: all; /* Permite selecionar o número todo com 1 clique para copiar */
+}
+.btn-contact-new {
+    display: block;
+    background-color: #334155;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+.btn-contact-new:hover {
+    background-color: #1e293b;
+}
+
+/* =========================================
+   MARKETPLACE - ESTILOS DOS CARTÕES E BUSCA 
+   ========================================= */
+
+.market-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+/* Topo e Botão Anunciar */
+.header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.btn-anunciar-top { background-color: #16a34a; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.95rem; }
+
+/* Barra de Pesquisa 80/20 */
+.search-proporcional { display: flex; gap: 0; margin-bottom: 20px; }
+.search-proporcional input { flex: 4; padding: 12px; border: 2px solid #cbd5e1; border-right: none; border-radius: 6px 0 0 6px; outline: none; }
+.search-proporcional button { flex: 1; background: #2c3e50; color: white; border: 2px solid #2c3e50; border-radius: 0 6px 6px 0; cursor: pointer; font-weight: bold; }
+
+/* Abas de Navegação */
+.market-tabs { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+.market-tabs .tab { text-decoration: none; color: #94a3b8; font-weight: bold; padding-bottom: 8px; }
+.market-tabs .tab.active { color: #2c3e50; border-bottom: 3px solid #2c3e50; }
+
+/* Grade ajustada para cartões menores (redução de ~20%) */
+.market-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Caiu de 280px para 220px */
+    gap: 15px; /* Espaço entre eles ligeiramente menor */
+}
+
+/* O CARTÃO (Mais compacto) */
+.market-card { 
+    background: white; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 8px; 
+    padding: 15px; /* Caiu de 20px para 15px */
+    display: flex; 
+    flex-direction: column; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.market-card.oferta { border-top: 4px solid #16a34a; }
+.market-card.procura { border-top: 4px solid #f59e0b; }
+
+.card-top { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.8rem; font-weight: bold; color: #64748b; }
+.market-card h3 { margin: 0 0 10px 0; color: #1e293b; font-size: 1.2rem; }
+.price { font-size: 1.2rem; font-weight: 800; color: #16a34a; margin-bottom: 10px; }
+.desc { color: #64748b; font-size: 0.9rem; flex-grow: 1; margin-bottom: 15px; }
+
+/* Vendedor */
+.seller-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.avatar-small i { font-size: 1.5rem; color: #cbd5e1; }
+
+/* CAIXA DE CONTATO (Onde fica o botão) */
+.contact-area-new { 
+    background-color: #f8fafc; 
+    border: 1px dashed #cbd5e1; 
+    padding: 15px; 
+    border-radius: 8px; 
+    text-align: center; 
+    margin-top: auto; /* Empurra pro fundo do cartão */
+}
+.contact-label { font-size: 0.8rem; color: #64748b; margin: 0; }
+.contact-number { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin: 5px 0 10px 0; user-select: all; }
+.btn-contact-new { 
+    display: block; 
+    background-color: #334155; 
+    color: white; 
+    padding: 10px; 
+    border-radius: 6px; 
+    text-decoration: none; 
+    font-weight: bold; 
+}
+.btn-contact-new:hover { background-color: #1e293b; }
+
+/* =========================================
+   PÁGINA DE DETALHES (SINGLE PAGE)
+   ========================================= */
+
+.details-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+.btn-back { display: inline-block; margin-bottom: 20px; color: #64748b; text-decoration: none; font-weight: bold; }
+.btn-back:hover { color: #2c3e50; }
+
+/* Capa Grande (Hero) */
+.details-hero {
+    height: 350px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.hero-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 30px;
+    color: white;
+}
+
+.details-hero h1 { margin: 10px 0 5px 0; font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.sub-hero { font-size: 1.2rem; opacity: 0.9; margin: 0; color: #fbbf24; font-weight: bold; }
+.badge-hero { display: inline-block; background: #2563eb; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; width: fit-content;}
+
+/* Layout Colunas (Texto vs Lateral) */
+.details-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+
+/* Responsivo para celular */
+@media (max-width: 768px) {
+    .details-content-grid { grid-template-columns: 1fr; }
+    .details-hero { height: 250px; }
+    .details-hero h1 { font-size: 1.8rem; }
+}
+
+/* Coluna Principal */
+.info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.lead-text { font-size: 1.1rem; color: #475569; line-height: 1.6; }
+.divider { border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0; }
+.rich-text { line-height: 1.8; color: #334155; }
+
+/* Coluna Lateral (Caixa de Informação) */
+.info-box { background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; position: sticky; top: 20px; }
+.info-list { list-style: none; padding: 0; margin: 20px 0; }
+.info-list li { margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+.info-list strong { display: block; color: #64748b; font-size: 0.9rem; margin-bottom: 5px; }
+.info-list span { color: #1e293b; font-size: 1rem; }
+
+.btn-call-action { display: block; text-align: center; background: #16a34a; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+.btn-call-action:hover { background: #15803d; }

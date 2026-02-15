@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="home-container">
+    
+    <section class="hero">
+        <img src="https://picsum.photos/id/10/1200/400" alt="Moçâmedes Landscape" class="hero-bg">
+        <div class="hero-content">
+            <h1>Bem-vindo ao Portal de Moçâmedes</h1>
+            <p>Sua central única de informações, serviços e conexão com a nossa comunidade no Namibe.</p>
+            <div class="hero-buttons">
+                <a href="/diretorio" class="btn btn-white">Ver Diretório</a>
+                <a href="/feed" class="btn btn-blue">Feed Comunitário</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="categories-section">
+        <h2>O que você procura hoje?</h2>
+        <div class="grid-cards">
+            
+            <a href="{{ url_for('diretorio', categoria='Instituições') }}" class="card-item">
+                <div class="icon-box text-blue"><i class="fas fa-university"></i></div>
+                <h3>Instituições</h3>
+                <p>Governo, administração local e empresas.</p>
+            </a>
+            
+            <a href="{{ url_for('diretorio', categoria='Saúde') }}" class="card-item">
+                <div class="icon-box text-green"><i class="fas fa-heartbeat"></i></div>
+                <h3>Saúde</h3>
+                <p>Hospitais, clínicas e postos de saúde da cidade.</p>
+            </a>
+            
+            <a href="{{ url_for('diretorio', categoria='Comércio') }}" class="card-item">
+                <div class="icon-box text-amber"><i class="fas fa-shopping-bag"></i></div>
+                <h3>Comércio e Hospedaria</h3>
+                <p>Apoie os negócios locais e encontre o que precisa.</p>
+            </a>
+
+            <a href="/marketplace" class="card-item">
+                <div class="icon-box" style="color: #16a34a;"><i class="fas fa-tools"></i></div>
+                <h3>Serviços e Vendas</h3>
+                <p>Ofertas de serviços e compra e venda.</p>
+            </a>
+            
+            <a href="/feed" class="card-item">
+                <div class="icon-box text-purple"><i class="fas fa-users"></i></div>
+                <h3>Comunidade</h3>
+                <p>Notícias, anúncios de vendas e eventos locais.</p>
+            </a>
+
+        </div>
+    </section>
+
+    <section class="info-section">
+        <div class="info-text">
+            <h2>Sobre Moçâmedes</h2>
+            <p>Moçâmedes, a capital da província do Namibe em Angola, é uma cidade vibrante entre o deserto e o mar. Conhecida pela sua arquitetura colonial e o seu clima único, a cidade está em constante crescimento.</p>
+            <p>Este portal nasceu da necessidade de organizar as informações do nosso município, facilitando a vida do cidadão e promovendo o desenvolvimento local de forma digital e inclusiva.</p>
+            <a href="#" class="link-arrow">Saiba mais sobre a história do Namibe →</a>
+        </div>
+        <div class="info-image">
+            <img src="https://picsum.photos/id/28/600/400" alt="Namibe Coast">
+        </div>
+    </section>
+
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="directory-container">
+    <div class="directory-header">
+        <h2>Diretório de Moçâmedes</h2>
+        <p>Encontre serviços, empresas e instituições públicas.</p>
+        
+        <div class="filter-buttons">
+            <a href="/diretorio" class="btn-filter">Todos</a>
+            <a href="/diretorio?categoria=Instituições" class="btn-filter">Instituições</a>
+            <a href="/diretorio?categoria=Saúde" class="btn-filter">Saúde</a>
+            <a href="/diretorio?categoria=Educação" class="btn-filter">Educação</a>
+            <a href="/diretorio?categoria=Comércio" class="btn-filter">Comércio</a>
+            <a href="/diretorio?categoria=Turismo" class="btn-filter">Turismo</a>
+        </div>
+    </div>
+
+    <div class="directory-grid">
+        {% for item in itens %}
+            <div class="directory-card">
+                
+                <div class="card-image" style="background-image: url('{{ url_for('static', filename='uploads/capas/' + item.imagem_capa) }}');">
+
+                    <span class="category-badge {{ item.categoria }}">{{ item.categoria }}</span>
+                </div>
+
+                <div class="card-content">
+                    <div class="card-header-row">
+                        <h3 class="card-title">{{ item.nome }}</h3>
+                        
+                        {% if item.tipo == 'Publico' %}
+                            <span class="type-badge publico">Público</span>
+                        {% elif item.tipo == 'Privado' %}
+                            <span class="type-badge privado">Privado</span>
+                        {% else %}
+                            <span class="type-badge ong">ONG</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if item.subcategoria %}
+                        <p class="subcategoria">{{ item.subcategoria }}</p>
+                    {% endif %}
+
+                    <p class="description">{{ item.descricao_curta }}</p>
+
+                    <div class="contact-info">
+                        {% if item.horario %}
+                        <div class="info-row">
+                            <i class="far fa-clock"></i> <span>{{ item.horario }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.telefone %}
+                        <div class="info-row">
+                            <i class="fas fa-phone-alt"></i> <span>{{ item.telefone }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.endereco %}
+                        <div class="info-row">
+                            <i class="fas fa-map-marker-alt"></i> <span style="font-size: 0.85rem;">{{ item.endereco }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <a href="{{ url_for('detalhes_local', id=item.id) }}" class="btn-details">Ver Mais Detalhes</a>
+                </div>
+            </div>
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #f8fafc; border-radius: 8px;">
+                <h3>Nenhum local encontrado.</h3>
+                <p>Tente mudar o filtro ou cadastre um novo local no painel.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

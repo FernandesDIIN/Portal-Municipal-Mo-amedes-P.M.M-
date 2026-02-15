@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container" style="max-width: 600px; margin: 40px auto;">
+    <div class="login-box">
+        <h2 style="color: #2c3e50; margin-bottom: 5px;">Criar Anúncio</h2>
+        <p style="color: #64748b; margin-bottom: 20px;">Preencha os dados abaixo para publicar nos Classificados de Moçâmedes.</p>
+
+        <form method="POST" action="/anunciar">
+            
+            <div class="form-group">
+                <label>Tipo de Anúncio</label>
+                <select name="tipo_anuncio" class="form-select" required style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <option value="oferta">VENDO algo ou OFEREÇO um serviço</option>
+                    <option value="procura">PRECISO de algo ou PROCURO um serviço</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Categoria</label>
+                <select name="categoria" class="form-select" required style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <option value="Serviços">Serviços (Pedreiro, Mecânico, etc)</option>
+                    <option value="Imóveis">Imóveis (Aluguel, Venda)</option>
+                    <option value="Veículos">Veículos & Peças</option>
+                    <option value="Eletrônicos">Eletrônicos (Telemóveis, Computadores)</option>
+                    <option value="Outros">Outros / Diversos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Título Breve</label>
+                <input type="text" name="titulo" placeholder="Ex: Conserto de Geleiras ou Procuro Casa T3" required style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label>Descrição Completa</label>
+                <textarea name="descricao" rows="4" placeholder="Detalhe o que você está oferecendo ou precisando..." required style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Preço (Opcional)</label>
+                    <input type="text" name="preco" placeholder="Ex: 50.000 Kz ou A combinar" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                </div>
+
+                <div class="form-group" style="flex: 1;">
+                    <label>Seu Contacto</label>
+                    <input type="text" name="contato" value="{{ contato_padrao }}" required style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                </div>
+            </div>
+
+            <button type="submit" style="width: 100%; background: #16a34a; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 10px;">
+                Publicar Anúncio
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

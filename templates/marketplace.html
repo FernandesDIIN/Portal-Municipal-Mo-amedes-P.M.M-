@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="market-container">
+    
+    <div class="market-header">
+        <div class="header-top-row">
+            <h2>Classificados e Serviços</h2>
+            <a href="/anunciar" class="btn-anunciar-top">
+                <i class="fas fa-plus"></i> Anunciar
+            </a>
+        </div>
+        
+        <p>Compre, venda, ofereça serviços ou encontre o que precisa em Moçâmedes.</p>
+
+        <form action="/marketplace" method="GET" class="search-bar search-proporcional">
+            <input type="text" name="q" placeholder="O que você procura? (Ex: Mecânico, Carro...)" value="{{ request.args.get('q', '') }}">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <div class="market-tabs">
+            <a href="/marketplace" class="tab {% if not tipo_ativo %}active{% endif %}">Tudo</a>
+            <a href="/marketplace?tipo=oferta" class="tab {% if tipo_ativo == 'oferta' %}active{% endif %}">
+                <i class="fas fa-tag"></i> Vendas e Ofertas
+            </a>
+            <a href="/marketplace?tipo=procura" class="tab {% if tipo_ativo == 'procura' %}active{% endif %}">
+                <i class="fas fa-bullhorn"></i> Pedidos e Procuras
+            </a>
+        </div>
+    </div>
+
+    <div class="market-grid">
+        {% for item in anuncios %}
+            <div class="market-card {{ item.tipo_anuncio }}">
+                <div class="card-top">
+                    <span class="badge-tipo">
+                        {% if item.tipo_anuncio == 'oferta' %}
+                            VENDO / FAÇO
+                        {% else %}
+                            PRECISO / PROCURO
+                        {% endif %}
+                    </span>
+                    <span class="badge-cat">{{ item.categoria }}</span>
+                </div>
+
+                <h3>{{ item.titulo }}</h3>
+                
+                {% if item.preco %}
+                    <div class="price">{{ item.preco }}</div>
+                {% endif %}
+
+                <p class="desc">{{ item.descricao }}</p>
+
+                <div class="seller-info">
+                    <div class="avatar-small">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="meta">
+                        <strong>{{ item.autor_nome }}</strong>
+                    </div>
+                </div>
+
+                <div class="contact-area-new">
+                    <p class="contact-label">Contacto:</p>
+                    <div class="contact-number">{{ item.contato }}</div>
+                    
+                    <a href="tel:{{ item.contato | replace(' ', '') }}" class="btn-contact-new">
+                        <i class="fas fa-phone"></i> Entrar em contacto
+                    </a>
+                </div>
+
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>Nenhum anúncio encontrado.</h3>
+                <p>Seja o primeiro a anunciar!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
