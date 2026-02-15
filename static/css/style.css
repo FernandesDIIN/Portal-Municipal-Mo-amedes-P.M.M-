@@ -936,3 +936,203 @@ input, button {
 
 .btn-call-action { display: block; text-align: center; background: #16a34a; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.3s; }
 .btn-call-action:hover { background: #15803d; }
+
+/* =========================================
+   AÇÕES DO FEED (BUSCA + BOTÃO)
+   ========================================= */
+
+.feed-actions {
+    display: flex;
+    justify-content: space-between; /* Um pra cada lado */
+    align-items: center; /* Alinha verticalmente no meio */
+    gap: 20px; /* Espaço seguro entre eles */
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.flex-busca {
+    flex-grow: 1; /* Ocupa o espaço que sobrar */
+    max-width: 600px; /* Mas não passa de 600px para não ficar esticado demais */
+    margin: 0 !important; /* Remove margens antigas para não quebrar o alinhamento */
+}
+
+.btn-create {
+    background-color: #16a34a; /* Verde */
+    color: white;
+    padding: 12px 20px; /* Mesma altura visual do input de busca */
+    border-radius: 6px; /* Mesma borda da busca */
+    text-decoration: none;
+    font-weight: bold;
+    white-space: nowrap; /* Impede o botão de quebrar o texto em duas linhas */
+    transition: background 0.3s;
+}
+
+.btn-create:hover {
+    background-color: #15803d;
+}
+
+/* COMPORTAMENTO EM TELAS PEQUENAS (Celular) */
+@media (max-width: 650px) {
+    .feed-actions {
+        flex-direction: column; /* Coloca em coluna */
+        align-items: stretch; /* Estica para ocupar 100% da tela */
+    }
+    
+    .flex-busca {
+        max-width: 100%; /* Busca ocupa a tela toda */
+    }
+    
+    .btn-create {
+        text-align: center; /* Centraliza o texto do botão */
+    }
+}
+
+/* =========================================
+   GALERIA DE FOTOS (GRELHA RESPONSIVA)
+   ========================================= */
+
+.galeria-grid {
+    display: grid;
+    /* A MÁGICA: Cria colunas automaticamente.
+       Cada foto terá no mínimo 150px e no máximo o espaço que sobrar (1fr).
+       Isso faz elas "quebrarem" de linha sozinhas. */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px; /* Espaço pequeno entre as fotos */
+    margin-bottom: 20px;
+}
+
+.foto-galeria {
+    width: 100%; /* Ocupa toda a largura da sua célula na grelha */
+    height: 150px; /* Altura fixa menor para ficarem uniformes */
+    object-fit: cover; /* Corta a imagem para não esticar/amassar */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.foto-galeria:hover {
+    transform: scale(1.03); /* Efeito de zoom suave ao passar o mouse */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Caixa de Upload do Admin (Ajuste visual) */
+.admin-upload-box {
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 2px dashed #cbd5e1;
+}
+
+/* =========================================
+   GALERIA OFICIAL DO MUNICÍPIO
+   ========================================= */
+
+.global-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 250px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Fundo degradê para garantir que o texto branco seja lido em qualquer foto */
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 30px 20px 15px 20px;
+    color: white;
+    /* Removido o opacity:0 e o transform. Agora fica SEMPRE VISÍVEL! */
+}
+
+/* Mantemos apenas o efeito de zoom suave na foto ao passar o mouse */
+.gallery-item:hover img {
+    transform: scale(1.05); 
+}
+
+/* Estilo do Botão de Excluir Foto (Painel Admin) */
+.btn-delete-photo {
+    background: #ef4444; /* Vermelho */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: 0.2s;
+}
+
+.btn-delete-photo:hover {
+    background: #dc2626;
+}
+
+.gallery-title {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.gallery-location {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #fbbf24; /* Amarelo ouro */
+    font-weight: bold;
+}
+
+/* =========================================
+   FEED - POSTS FIXADOS E BOTÕES
+   ========================================= */
+
+/* Destaca o fundo e a borda do post fixado */
+.post-fixado {
+    border: 2px solid #eab308 !important;
+    background-color: #fefce8 !important;
+}
+
+/* Estilo padrão do botão de Fixar (Amarelo) */
+.btn-action-fixar {
+    background-color: #eab308;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+}
+
+.btn-action-fixar:hover {
+    background-color: #ca8a04;
+}
+
+/* Se tiver a classe .desfixar, ele fica Cinza */
+.btn-action-fixar.desfixar {
+    background-color: #94a3b8;
+}
+
+.btn-action-fixar.desfixar:hover {
+    background-color: #64748b;
+}

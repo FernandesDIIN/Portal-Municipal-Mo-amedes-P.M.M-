@@ -31,42 +31,97 @@ def home():
 @app.route('/feed')
 def feed():
     conn = get_db_connection()
-    # Busca postagens unindo com a tabela de usuários para saber quem postou (autor)
+    busca = request.args.get('q')
+    
     sql = '''
         SELECT postagens.*, usuarios.nome as autor_nome, usuarios.foto_perfil 
         FROM postagens 
         JOIN usuarios ON postagens.usuario_id = usuarios.id 
-        ORDER BY data_criacao DESC
+        WHERE 1=1
     '''
-    postagens = conn.execute(sql).fetchall()
+    params = []
+
+    if busca:
+        sql += ' AND (titulo LIKE ? OR conteudo LIKE ? OR categoria LIKE ?)'
+        termo = f'%{busca}%'
+        params.extend([termo, termo, termo])
+        
+    sql += ' ORDER BY fixado DESC, data_criacao DESC'
+    
+    postagens = conn.execute(sql, params).fetchall()
     conn.close()
+    
     return render_template('feed.html', postagens=postagens)
 
 @app.route('/diretorio')
 def diretorio():
     conn = get_db_connection()
-    # Filtros simples via URL (ex: /diretorio?categoria=Saúde)
+    
     categoria_filtro = request.args.get('categoria')
+    busca = request.args.get('q') # Pega o que o usuário digitou
     
+    sql = 'SELECT * FROM diretorio WHERE 1=1'
+    params = []
+
     if categoria_filtro:
-        itens = conn.execute('SELECT * FROM diretorio WHERE categoria = ? ORDER BY nome', (categoria_filtro,)).fetchall()
-    else:
-        itens = conn.execute('SELECT * FROM diretorio ORDER BY nome').fetchall()
+        sql += ' AND categoria = ?'
+        params.append(categoria_filtro)
+        
+    if busca:
+        sql += ' AND (nome LIKE ? OR descricao_curta LIKE ? OR subcategoria LIKE ?)'
+        termo = f'%{busca}%'
+        params.extend([termo, termo, termo])
+        
+    sql += ' ORDER BY nome'
     
+    itens = conn.execute(sql, params).fetchall()
     conn.close()
+    
     return render_template('diretorio.html', itens=itens)
 
 @app.route('/detalhes/<int:id>')
 def detalhes_local(id):
     conn = get_db_connection()
-    # Busca o item específico pelo ID
     item = conn.execute('SELECT * FROM diretorio WHERE id = ?', (id,)).fetchone()
+    
+    # Busca todas as fotos da galeria deste local específico
+    fotos_galeria = conn.execute('SELECT * FROM galeria_diretorio WHERE diretorio_id = ?', (id,)).fetchall()
     conn.close()
     
     if item is None:
         return "Local não encontrado", 404
         
-    return render_template('detalhes.html', item=item)
+    return render_template('detalhes.html', item=item, fotos=fotos_galeria)
+
+# NOVA ROTA: Apenas Admins podem mandar foto para a galeria
+@app.route('/upload_galeria/<int:id>', methods=['POST'])
+def upload_galeria(id):
+    if session.get('user_funcao') != 'admin':
+        return "Acesso negado", 403
+
+    arquivo = request.files.get('imagem_galeria')
+    if arquivo and arquivo.filename != '':
+        nome_seguro = secure_filename(arquivo.filename)
+        import random
+        # Cria um nome único: galeria_1_4582_foto.jpg
+        nome_final = f"galeria_{id}_{random.randint(1000, 9999)}_{nome_seguro}"
+        
+        # Garante que a pasta 'galeria' existe dentro de uploads
+        pasta_galeria = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria')
+        os.makedirs(pasta_galeria, exist_ok=True)
+        
+        # Salva o arquivo na pasta
+        arquivo.save(os.path.join(pasta_galeria, nome_final))
+        
+        # Salva no banco de dados
+        conn = get_db_connection()
+        conn.execute('INSERT INTO galeria_diretorio (diretorio_id, nome_imagem) VALUES (?, ?)', (id, nome_final))
+        conn.commit()
+        conn.close()
+        
+        flash('Foto adicionada à galeria com sucesso!')
+        
+    return redirect(url_for('detalhes_local', id=id))
     
 @app.route('/marketplace')
 def marketplace():
@@ -206,20 +261,22 @@ def logout():
     return redirect(url_for('login'))
 
 # --- ÁREA ADMINISTRATIVA ---
-
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # Verifica se está logado E se é admin
-    if 'user_id' not in session or session.get('user_funcao') != 'admin':
-        flash('Acesso negado. Apenas administradores.')
+    # 1. Segurança: Apenas Admin ou Mod
+    if 'user_id' not in session or session.get('user_funcao') not in ['admin', 'mod']:
+        flash('Acesso negado. Área restrita.')
         return redirect(url_for('login'))
-
+        
     conn = get_db_connection()
 
+    # =========================================================
+    # 2. LÓGICA DE SALVAR DADOS
+    # =========================================================
     if request.method == 'POST':
         acao = request.form.get('acao')
-
-        # 1. Nova Postagem
+        
+        # Nova Postagem
         if acao == 'nova_postagem':
             titulo = request.form['titulo']
             conteudo = request.form['conteudo']
@@ -230,8 +287,7 @@ def admin():
             conn.commit()
             flash('Postagem publicada!')
 
-        # 2. Novo Local no Diretório (Atualizado com novos campos)
-        # 2. Novo Local no Diretório (COM UPLOAD DE IMAGEM)
+        # Novo Local no Diretório (COM UPLOAD DE IMAGEM)
         elif acao == 'novo_item_diretorio':
             nome = request.form['nome']
             categoria = request.form['categoria']
@@ -244,23 +300,19 @@ def admin():
             historia = request.form['historia']
             
             # Lógica de Imagem
-            arquivo = request.files.get('imagem') # Pega o arquivo do form
-            nome_imagem = 'default_cover.jpg'     # Se não enviar nada, usa a padrão
+            arquivo = request.files.get('imagem')
+            nome_imagem = 'default_cover.jpg'
 
             if arquivo and arquivo.filename != '':
-                # Cria um nome seguro (ex: 'Minha Foto.jpg' vira 'Minha_Foto.jpg')
                 nome_seguro = secure_filename(arquivo.filename)
-                
-                # Adiciona um número aleatório no inicio para não substituir fotos com mesmo nome
                 import random
                 prefixo = str(random.randint(1000, 9999))
                 nome_final = f"{prefixo}_{nome_seguro}"
                 
-                # Salva na pasta correta
                 caminho_salvar = os.path.join(app.config['UPLOAD_FOLDER'], 'capas', nome_final)
                 arquivo.save(caminho_salvar)
                 
-                nome_imagem = nome_final # Atualiza o nome para salvar no banco
+                nome_imagem = nome_final
 
             # Salva no Banco de Dados
             conn.execute('''
@@ -272,13 +324,248 @@ def admin():
             conn.commit()
             flash('Local adicionado com foto!')
 
-    # Dados para exibição
-    usuarios = conn.execute('SELECT * FROM usuarios').fetchall()
-    postagens = conn.execute('SELECT * FROM postagens ORDER BY data_criacao DESC').fetchall()
-    diretorio = conn.execute('SELECT * FROM diretorio ORDER BY nome').fetchall()
-    conn.close()
+    # =========================================================
+    # 3. LÓGICA DE BUSCA E LISTAGEM (COM LIMITES INTELIGENTES)
+    # =========================================================
+    
+    # Busca de Usuários
+    busca_user = request.args.get('q_user', '').strip()
+    if busca_user:
+        # Se tem busca: Procura em tudo (incluindo o ID exato) e SEM limite
+        sql_users = 'SELECT * FROM usuarios WHERE email LIKE ? OR telefone LIKE ? OR nome LIKE ? OR CAST(id AS TEXT) = ? ORDER BY nome'
+        termo_user = f'%{busca_user}%'
+        params_users = [termo_user, termo_user, termo_user, busca_user]
+    else:
+        # Se NÃO tem busca: Mostra apenas os 3 mais recentes cadastrados
+        sql_users = 'SELECT * FROM usuarios ORDER BY id DESC LIMIT 3'
+        params_users = []
+        
+    usuarios = conn.execute(sql_users, params_users).fetchall()
 
-    return render_template('admin.html', usuario=session['user_nome'], usuarios=usuarios, postagens=postagens, itens_diretorio=diretorio)
+    # Busca do Diretório
+    busca_dir = request.args.get('q_dir', '').strip()
+    if busca_dir:
+        # Se tem busca: Procura pelo nome SEM limite
+        sql_dir = 'SELECT * FROM diretorio WHERE nome LIKE ? ORDER BY nome'
+        termo_dir = f'%{busca_dir}%'
+        params_dir = [termo_dir]
+    else:
+        # Se NÃO tem busca: Mostra apenas os 2 mais recentes
+        sql_dir = 'SELECT * FROM diretorio ORDER BY id DESC LIMIT 2'
+        params_dir = []
+        
+    diretorio = conn.execute(sql_dir, params_dir).fetchall()
+
+    # Lista de postagens padrão
+    postagens = conn.execute('SELECT * FROM postagens ORDER BY data_criacao DESC').fetchall()
+    
+    conn.close()
+    
+    return render_template('admin.html', usuario=session.get('user_nome', ''), usuarios=usuarios, postagens=postagens, itens_diretorio=diretorio, itens=diretorio)
+
+@app.route('/admin/deletar_usuario/<int:id>', methods=['POST'])
+def deletar_usuario(id):
+    if session.get('user_funcao') != 'admin':
+        return "Acesso negado", 403
+        
+    # Proteção: O Admin não pode excluir a própria conta por acidente
+    if id == session['user_id']:
+        flash('Você não pode excluir sua própria conta de Administrador!')
+        return redirect(url_for('admin'))
+
+    conn = get_db_connection()
+    # Limpa os dados do usuário para não deixar "fantasmas" no banco
+    conn.execute('DELETE FROM postagens WHERE usuario_id = ?', (id,))
+    conn.execute('DELETE FROM marketplace WHERE usuario_id = ?', (id,))
+    # Por fim, exclui o usuário
+    conn.execute('DELETE FROM usuarios WHERE id = ?', (id,))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Usuário e seus dados excluídos com sucesso!')
+    return redirect(url_for('admin'))
+
+@app.route('/galeria', methods=['GET', 'POST'])
+def galeria():
+    conn = get_db_connection()
+    
+    # Se for um POST (envio de foto) e o usuário for ADMIN
+    if request.method == 'POST' and session.get('user_funcao') == 'admin':
+        titulo = request.form['titulo']
+        local = request.form['local']
+        arquivo = request.files.get('imagem')
+        
+        if arquivo and arquivo.filename != '':
+            nome_seguro = secure_filename(arquivo.filename)
+            import random
+            nome_final = f"mun_{random.randint(1000, 9999)}_{nome_seguro}"
+            
+            # Cria a pasta caso ela não exista
+            pasta = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_municipio')
+            os.makedirs(pasta, exist_ok=True)
+            
+            # Salva o arquivo
+            arquivo.save(os.path.join(pasta, nome_final))
+            
+            # Salva no banco
+            conn.execute('INSERT INTO galeria_municipio (titulo, local, nome_imagem) VALUES (?, ?, ?)', 
+                         (titulo, local, nome_final))
+            conn.commit()
+            flash('Foto adicionada à galeria oficial!')
+            return redirect(url_for('galeria'))
+
+    # Busca todas as fotos para exibir
+    fotos = conn.execute('SELECT * FROM galeria_municipio ORDER BY data_criacao DESC').fetchall()
+    conn.close()
+    
+    return render_template('galeria.html', fotos=fotos)
+
+@app.route('/deletar_foto_galeria/<int:id>', methods=['POST'])
+def deletar_foto_galeria(id):
+    # Proteção extra: Só admin pode apagar
+    if session.get('user_funcao') != 'admin':
+        flash('Acesso negado.')
+        return redirect(url_for('galeria'))
+        
+    conn = get_db_connection()
+    # 1. Pega o nome do arquivo para apagar da pasta
+    foto = conn.execute('SELECT nome_imagem FROM galeria_municipio WHERE id = ?', (id,)).fetchone()
+    
+    if foto:
+        try:
+            # Apaga o arquivo físico da pasta
+            caminho_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_municipio', foto['nome_imagem'])
+            if os.path.exists(caminho_arquivo):
+                os.remove(caminho_arquivo)
+        except Exception as e:
+            print(f"Erro ao apagar arquivo físico: {e}")
+        
+        # 2. Apaga o registro do banco de dados
+        conn.execute('DELETE FROM galeria_municipio WHERE id = ?', (id,))
+        conn.commit()
+        flash('Foto excluída com sucesso!')
+        
+    conn.close()
+    return redirect(url_for('galeria'))
+
+# --- ROTAS DE EDIÇÃO E EXCLUSÃO DO DIRETÓRIO ---
+
+@app.route('/admin/deletar_diretorio/<int:id>', methods=['POST'])
+def deletar_diretorio(id):
+    if session.get('user_funcao') != 'admin':
+        flash('Acesso negado.')
+        return redirect(url_for('login'))
+        
+    conn = get_db_connection()
+    # 1. Primeiro apaga as fotos da galeria vinculadas a este local (proteção do banco)
+    conn.execute('DELETE FROM galeria_diretorio WHERE diretorio_id = ?', (id,))
+    # 2. Depois apaga o local em si
+    conn.execute('DELETE FROM diretorio WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    
+    flash('Local excluído do sistema com sucesso!')
+    return redirect(url_for('admin'))
+
+@app.route('/admin/editar_diretorio/<int:id>', methods=['GET', 'POST'])
+def editar_diretorio(id):
+    if session.get('user_funcao') != 'admin':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    
+    # Se o administrador alterou os dados e clicou em Salvar (POST)
+    if request.method == 'POST':
+        nome = request.form['nome']
+        categoria = request.form['categoria']
+        subcategoria = request.form['subcategoria']
+        tipo = request.form['tipo']
+        telefone = request.form['telefone']
+        endereco = request.form['endereco']
+        horario = request.form['horario']
+        descricao = request.form['descricao']
+        historia = request.form['historia']
+        
+        # Verifica se ele mandou uma foto nova
+        arquivo = request.files.get('imagem')
+        
+        if arquivo and arquivo.filename != '':
+            nome_seguro = secure_filename(arquivo.filename)
+            import random
+            nome_final = f"{random.randint(1000, 9999)}_{nome_seguro}"
+            arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], 'capas', nome_final))
+            
+            # Atualiza TUDO, incluindo a foto nova
+            conn.execute('''
+                UPDATE diretorio 
+                SET nome=?, categoria=?, subcategoria=?, tipo=?, telefone=?, endereco=?, horario=?, descricao_curta=?, historia_completa=?, imagem_capa=?
+                WHERE id=?
+            ''', (nome, categoria, subcategoria, tipo, telefone, endereco, horario, descricao, historia, nome_final, id))
+        else:
+            # Atualiza apenas os textos, mantendo a foto antiga intacta
+            conn.execute('''
+                UPDATE diretorio 
+                SET nome=?, categoria=?, subcategoria=?, tipo=?, telefone=?, endereco=?, horario=?, descricao_curta=?, historia_completa=?
+                WHERE id=?
+            ''', (nome, categoria, subcategoria, tipo, telefone, endereco, horario, descricao, historia, id))
+            
+        conn.commit()
+        conn.close()
+        flash('Informações do local atualizadas com sucesso!')
+        return redirect(url_for('admin'))
+
+    # Se ele apenas clicou em "Editar" (GET), carrega os dados atuais para preencher o formulário
+    item = conn.execute('SELECT * FROM diretorio WHERE id = ?', (id,)).fetchone()
+    conn.close()
+    
+    if item is None:
+        return "Local não encontrado", 404
+        
+    return render_template('admin_editar.html', item=item)
+
+# --- SISTEMA DE MODERADORES E POSTS FIXADOS ---
+
+@app.route('/toggle_fixar/<int:id>', methods=['POST'])
+def toggle_fixar(id):
+    # Apenas admin ou mod podem fixar
+    if session.get('user_funcao') not in ['admin', 'mod']:
+        return "Acesso negado", 403
+
+    conn = get_db_connection()
+    post = conn.execute('SELECT fixado FROM postagens WHERE id = ?', (id,)).fetchone()
+
+    if post['fixado'] == 1:
+        # Se já está fixado, desfixa
+        conn.execute('UPDATE postagens SET fixado = 0 WHERE id = ?', (id,))
+        flash('Postagem removida do topo.')
+    else:
+        # Tenta fixar. Conta quantos já estão fixados.
+        fixados_count = conn.execute('SELECT COUNT(*) as qtd FROM postagens WHERE fixado = 1').fetchone()['qtd']
+        if fixados_count >= 3:
+            flash('Limite atingido: Você só pode fixar 3 postagens no topo. Desfixe uma primeiro.')
+        else:
+            conn.execute('UPDATE postagens SET fixado = 1 WHERE id = ?', (id,))
+            flash('Postagem fixada no topo com sucesso!')
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('feed'))
+
+@app.route('/admin/promover/<int:user_id>', methods=['POST'])
+def promover_usuario(user_id):
+    # SÓ O ADMIN PODE DAR PODERES (Mods não podem promover outros)
+    if session.get('user_funcao') != 'admin':
+        return "Acesso negado", 403
+
+    novo_papel = request.form['papel'] # Recebe 'mod' ou 'cidadao' do formulário
+    conn = get_db_connection()
+    conn.execute('UPDATE usuarios SET funcao = ? WHERE id = ?', (novo_papel, user_id))
+    conn.commit()
+    conn.close()
+    
+    flash('Nível de acesso do usuário atualizado!')
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.run(debug=True)

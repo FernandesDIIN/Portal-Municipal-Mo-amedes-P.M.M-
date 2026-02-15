@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container" style="max-width: 800px; margin: 40px auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2><i class="fas fa-edit"></i> Editar Local: {{ item.nome }}</h2>
+        <a href="/admin" style="color: #64748b; font-weight: bold; text-decoration: none;"><i class="fas fa-arrow-left"></i> Voltar</a>
+    </div>
+
+    <div class="admin-card" style="padding: 30px;">
+        <form method="POST" action="/admin/editar_diretorio/{{ item.id }}" enctype="multipart/form-data" class="form-grid">
+            
+            <div class="form-group">
+                <label>Nome do Local</label>
+                <input type="text" name="nome" value="{{ item.nome }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Categoria Principal</label>
+                <select name="categoria" class="form-select">
+                    <option value="Saúde" {% if item.categoria == 'Saúde' %}selected{% endif %}>Saúde</option>
+                    <option value="Educação" {% if item.categoria == 'Educação' %}selected{% endif %}>Educação</option>
+                    <option value="Comércio" {% if item.categoria == 'Comércio' %}selected{% endif %}>Comércio & Hospedaria</option>
+                    <option value="Turismo" {% if item.categoria == 'Turismo' %}selected{% endif %}>Turismo</option>
+                    <option value="Instituições" {% if item.categoria == 'Instituições' %}selected{% endif %}>Instituições</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Subcategoria</label>
+                <input type="text" name="subcategoria" value="{{ item.subcategoria }}">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Gestão</label>
+                <select name="tipo" class="form-select">
+                    <option value="Publico" {% if item.tipo == 'Publico' %}selected{% endif %}>Público</option>
+                    <option value="Privado" {% if item.tipo == 'Privado' %}selected{% endif %}>Privado</option>
+                    <option value="ONG" {% if item.tipo == 'ONG' %}selected{% endif %}>ONG</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" name="telefone" value="{{ item.telefone }}">
+            </div>
+
+            <div class="form-group">
+                <label>Horário</label>
+                <input type="text" name="horario" value="{{ item.horario }}">
+            </div>
+
+            <div class="form-group full-width" style="background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                <label style="color: #475569;"><i class="fas fa-camera"></i> Atualizar Foto de Capa (Opcional)</label>
+                <p style="font-size: 0.8rem; margin: 0 0 10px 0; color: #64748b;">Se não escolher nenhuma, a foto atual será mantida.</p>
+                <input type="file" name="imagem" accept="image/*">
+            </div>
+
+            <div class="form-group full-width">
+                <label>Endereço Completo</label>
+                <input type="text" name="endereco" value="{{ item.endereco }}">
+            </div>
+
+            <div class="form-group full-width">
+                <label>Resumo</label>
+                <input type="text" name="descricao" value="{{ item.descricao_curta }}" maxlength="100">
+            </div>
+
+            <div class="form-group full-width">
+                <label>História Completa</label>
+                <textarea name="historia" rows="5" class="form-textarea">{{ item.historia_completa }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-submit full-width" style="background-color: #2563eb; font-size: 1.1rem;">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

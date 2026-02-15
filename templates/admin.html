@@ -127,8 +127,91 @@
         <hr style="margin: 40px 0; border-top: 2px solid #e2e8f0;">
         <h2>Conteúdo Cadastrado</h2>
 
+        {% if session.get('user_funcao') == 'admin' %}
+        <div class="table-container" style="margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0;">Gestão de Usuários e Níveis</h3>
+                
+                <form action="/admin" method="GET" style="display: flex; gap: 5px;">
+                    <input type="text" name="q_user" placeholder="Buscar por ID, email, nome..." value="{{ request.args.get('q_user', '') }}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <button type="submit" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Buscar</button>
+                    {% if request.args.get('q_user') %}
+                        <a href="/admin" style="padding: 8px 10px; color: #ef4444; text-decoration: none; font-weight: bold;">Limpar</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <table class="admin-table">
+                <thead>                   
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Contato</th>
+                        <th>Nível Atual</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+
+                        <tr>
+                        <td><span style="color: #64748b; font-weight: bold; font-family: monospace;">#{{ u.id }}</span></td>
+                        <td>{{ u.nome }}</td>
+                        <td>{{ u.email or u.telefone }}</td>
+
+                        <td>
+                            {% if u.funcao == 'admin' %}
+                                <span style="background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Admin</span>
+                            {% elif u.funcao == 'mod' %}
+                                <span style="background: #2563eb; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Moderador</span>
+                            {% else %}
+                                <span style="background: #94a3b8; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Cidadão</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.id != session['user_id'] %}
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <form action="/admin/promover/{{ u.id }}" method="POST" style="margin: 0; display: flex; gap: 5px;">
+                                    <select name="papel" style="padding: 5px; border-radius: 4px;">
+                                        <option value="cidadao" {% if u.funcao == 'cidadao' %}selected{% endif %}>Cidadão</option>
+                                        <option value="mod" {% if u.funcao == 'mod' %}selected{% endif %}>Moderador</option>
+                                    </select>
+                                    <button type="submit" style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" title="Salvar Nível"><i class="fas fa-check"></i></button>
+                                </form>
+                                
+                                <form action="/admin/deletar_usuario/{{ u.id }}" method="POST" style="margin: 0;">
+                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="return confirm('ATENÇÃO! Isso apagará o usuário e todas as publicações dele. Confirmar?');" title="Excluir Usuário">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                                <em style="color: #94a3b8; font-size: 0.8rem;">(Você)</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align: center; color: #64748b;">Nenhum usuário encontrado na busca.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
         <div class="table-container">
-            <h3>Diretório</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0;">Diretório</h3>
+                
+                <form action="/admin" method="GET" style="display: flex; gap: 5px;">
+                    <input type="text" name="q_dir" placeholder="Buscar local por nome..." value="{{ request.args.get('q_dir', '') }}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <button type="submit" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Buscar</button>
+                    {% if request.args.get('q_dir') %}
+                        <a href="/admin" style="padding: 8px 10px; color: #ef4444; text-decoration: none; font-weight: bold;">Limpar</a>
+                    {% endif %}
+                </form>
+            </div>
+            
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -150,7 +233,23 @@
                             {% endif %}
                         </td>
                         <td>{{ item.categoria }} <small>({{ item.subcategoria }})</small></td>
-                        <td><button disabled style="opacity:0.5;">Editar</button></td> </tr>
+                        <td style="display: flex; gap: 10px; align-items: center;">
+                            <a href="/admin/editar_diretorio/{{ item.id }}" style="background: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: bold;">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            
+                            {% if session.get('user_funcao') == 'admin' %}
+                            <form action="/admin/deletar_diretorio/{{ item.id }}" method="POST" style="margin: 0;">
+                                <button type="submit" style="background: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="return confirm('CUIDADO! Tem certeza que deseja apagar este local definitivamente?');">
+                                    <i class="fas fa-trash-alt"></i> Excluir
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">Nenhum local encontrado na busca.</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

@@ -4,7 +4,12 @@
 <div class="directory-container">
     <div class="directory-header">
         <h2>Diretório de Moçâmedes</h2>
-        <p>Encontre serviços, empresas e instituições públicas.</p>
+        <p>Encontre instituições públicas, escolas, centros de saúde e serviços.</p>
+        
+        <form action="/diretorio" method="GET" class="search-proporcional" style="max-width: 600px; margin: 20px auto;">
+            <input type="text" name="q" placeholder="Buscar por nome ou descrição..." value="{{ request.args.get('q', '') }}">
+            <button type="submit">Buscar</button>
+        </form>
         
         <div class="filter-buttons">
             <a href="/diretorio" class="btn-filter">Todos</a>

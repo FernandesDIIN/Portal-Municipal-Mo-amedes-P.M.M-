@@ -31,7 +31,7 @@
             
             <hr class="divider">
 
-            <h3>História e Informações</h3>
+           <h3>História e Informações</h3>
             <div class="rich-text">
                 {% if item.historia_completa %}
                     {{ item.historia_completa | replace('\n', '<br>') | safe }}
@@ -39,9 +39,31 @@
                     <p><em>Nenhuma informação histórica cadastrada para este local.</em></p>
                 {% endif %}
             </div>
-        </div>
+            
+            <hr class="divider">
 
-        <div class="sidebar-info">
+            <h3><i class="fas fa-camera-retro"></i> Galeria de Fotos</h3>
+            
+            <div class="galeria-grid">
+                {% for foto in fotos %}
+                    <img src="{{ url_for('static', filename='uploads/galeria/' + foto.nome_imagem) }}" class="foto-galeria" alt="Foto da Galeria">
+                {% else %}
+                    <p style="color: #94a3b8; font-size: 0.9rem;">Nenhuma foto adicional na galeria.</p>
+                {% endfor %}
+            </div>
+
+            {% if session.get('user_funcao') == 'admin' %}
+            <div class="admin-upload-box">
+                <h4><i class="fas fa-upload"></i> Adicionar Foto (Painel Admin Oculto)</h4>
+                <form action="/upload_galeria/{{ item.id }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="file" name="imagem_galeria" accept="image/*" required style="flex: 1; border: 1px solid #cbd5e1; padding: 5px; border-radius: 4px; background: white;">
+                    <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        Enviar Foto
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            </div> <div class="sidebar-info">
             <div class="info-box">
                 <h3><i class="fas fa-info-circle"></i> Informações Úteis</h3>
                 

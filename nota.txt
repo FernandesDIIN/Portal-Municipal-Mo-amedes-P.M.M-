@@ -3,3 +3,7 @@ senha: admin123
 
 user test: 922806216
 senha: 123456
+
+para atualizar git: git add .
+git commit -m "descrição do que você alterou"
+git push

@@ -5,17 +5,55 @@
     <div class="feed-header">
         <h2>Feed da Comunidade</h2>
         <p>Notícias, eventos e classificados de Moçâmedes.</p>
-        <a href="/admin" class="btn-create">+ Nova Postagem</a>
+        
+        <div class="feed-actions">
+            <form action="/feed" method="GET" class="search-proporcional flex-busca">
+                <input type="text" name="q" placeholder="Pesquisar nas postagens e notícias..." value="{{ request.args.get('q', '') }}">
+                <button type="submit">Buscar</button>
+            </form>
+            
+            <a href="/admin" class="btn-create">+ Nova Postagem</a>
+        </div>
     </div>
 
     <div class="posts-list">
         {% for post in postagens %}
-            <div class="post-card">
-                <div class="post-tag {{ post.categoria }}">{{ post.categoria }}</div>
+            
+            <div class="post-card {% if post.fixado %}post-fixado{% endif %}">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="post-tag {{ post.categoria }}">{{ post.categoria }}</div>
+                    
+                    {% if post.fixado %}
+                        <span style="color: #ca8a04; font-weight: bold; font-size: 0.85rem;">
+                            <i class="fas fa-thumbtack"></i> FIXADO
+                        </span>
+                    {% endif %}
+                </div>
+
                 <h3>{{ post.titulo }}</h3>
                 <p>{{ post.conteudo }}</p>
-                <span class="post-date">Publicado em: {{ post.data_criacao }}</span>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #64748b;">
+                    <span style="font-weight: bold; color: #334155;"><i class="fas fa-user-circle"></i> {{ post.autor_nome }}</span>
+                    <span class="post-date"><i class="far fa-clock"></i> {{ post.data_criacao[:10] }}</span>
+                </div>
+
+                {% if session.get('user_funcao') in ['admin', 'mod'] %}
+                <form action="/toggle_fixar/{{ post.id }}" method="POST">
+                    <button type="submit" class="btn-action-fixar {% if post.fixado %}desfixar{% endif %}">
+                        {% if post.fixado %}
+                            <i class="fas fa-times"></i> Desfixar Postagem
+                        {% else %}
+                            <i class="fas fa-thumbtack"></i> Fixar no Topo
+                        {% endif %}
+                    </button>
+                </form>
+                {% endif %}
+
             </div>
+        {% else %}
+            <p style="text-align: center; color: #64748b; padding: 20px;">Nenhuma publicação no feed ainda.</p>
         {% endfor %}
     </div>
 </div>
