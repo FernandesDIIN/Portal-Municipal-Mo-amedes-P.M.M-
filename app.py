@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -33,8 +33,17 @@ def feed():
     conn = get_db_connection()
     busca = request.args.get('q')
     
+    # A MÁGICA DO ALGORITMO DE RELEVÂNCIA TEMPORAL (Estilo Reddit)
+    # 1. strftime('%s', 'now') = Pega a data/hora atual em segundos
+    # 2. strftime('%s', data_criacao) = Pega a data/hora do post em segundos
+    # 3. Diminuímos um do outro e dividimos por 3600 para descobrir as HORAS exatas de vida do post
+    # 4. Fórmula aplicada: upvotes / (horas_de_vida + 2.0)
+    
     sql = '''
-        SELECT postagens.*, usuarios.nome as autor_nome, usuarios.foto_perfil 
+        SELECT postagens.*, usuarios.nome as autor_nome, usuarios.foto_perfil,
+        
+        (upvotes / (((strftime('%s', 'now') - strftime('%s', data_criacao)) / 3600.0) + 2.0)) AS score_relevancia
+        
         FROM postagens 
         JOIN usuarios ON postagens.usuario_id = usuarios.id 
         WHERE 1=1
@@ -46,12 +55,22 @@ def feed():
         termo = f'%{busca}%'
         params.extend([termo, termo, termo])
         
-    sql += ' ORDER BY fixado DESC, data_criacao DESC'
+    # Ordenação Final: 
+    # 1º Fixados (1 vem antes de 0)
+    # 2º Score de Relevância calculado (Os mais quentes do momento)
+    # 3º Data de Criação (Desempate para posts sem votos)
+    sql += ' ORDER BY fixado DESC, score_relevancia DESC, data_criacao DESC'
     
     postagens = conn.execute(sql, params).fetchall()
-    conn.close()
     
-    return render_template('feed.html', postagens=postagens)
+    # Descobre em quais posts o usuário logado já votou
+    meus_votos = []
+    if 'user_id' in session:
+        votos = conn.execute('SELECT postagem_id FROM postagens_upvotes WHERE usuario_id = ?', (session['user_id'],)).fetchall()
+        meus_votos = [v['postagem_id'] for v in votos]
+        
+    conn.close()
+    return render_template('feed.html', postagens=postagens, meus_votos=meus_votos)
 
 @app.route('/diretorio')
 def diretorio():
@@ -566,6 +585,37 @@ def promover_usuario(user_id):
     
     flash('Nível de acesso do usuário atualizado!')
     return redirect(url_for('admin'))
+
+# --- SISTEMA DE UPVOTES (AJAX / FETCH) ---
+@app.route('/upvote/<int:post_id>', methods=['POST'])
+def upvote(post_id):
+    # Se não estiver logado, o Javascript vai avisar
+    if 'user_id' not in session:
+        return jsonify({'erro': 'Precisa fazer login para votar.'}), 401
+        
+    user_id = session['user_id']
+    conn = get_db_connection()
+    
+    # Verifica se já votou
+    voto_existente = conn.execute('SELECT * FROM postagens_upvotes WHERE usuario_id = ? AND postagem_id = ?', (user_id, post_id)).fetchone()
+    
+    if voto_existente:
+        # Se já votou, REMOVE o voto (o usuário clicou de novo para tirar)
+        conn.execute('DELETE FROM postagens_upvotes WHERE usuario_id = ? AND postagem_id = ?', (user_id, post_id))
+        conn.execute('UPDATE postagens SET upvotes = upvotes - 1 WHERE id = ?', (post_id,))
+        acao = 'removido'
+    else:
+        # Se não votou, ADICIONA o voto
+        conn.execute('INSERT INTO postagens_upvotes (usuario_id, postagem_id) VALUES (?, ?)', (user_id, post_id))
+        conn.execute('UPDATE postagens SET upvotes = upvotes + 1 WHERE id = ?', (post_id,))
+        acao = 'adicionado'
+        
+    conn.commit()
+    # Pega o novo número total de votos para o Javascript atualizar na tela
+    novo_total = conn.execute('SELECT upvotes FROM postagens WHERE id = ?', (post_id,)).fetchone()['upvotes']
+    conn.close()
+    
+    return jsonify({'upvotes': novo_total, 'acao': acao})
 
 if __name__ == '__main__':
     app.run(debug=True)

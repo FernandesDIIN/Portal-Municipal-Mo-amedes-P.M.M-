@@ -1136,3 +1136,48 @@ input, button {
 .btn-action-fixar.desfixar:hover {
     background-color: #64748b;
 }
+
+/* =========================================
+   SISTEMA DE UPVOTES (RELEVÂNCIA)
+   ========================================= */
+
+.upvote-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-radius: 20px;
+    width: fit-content;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-upvote {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.btn-upvote:hover {
+    color: #16a34a; /* Fica verde ao passar o mouse */
+    transform: translateY(-2px); /* Dá um pulinho */
+}
+
+/* Quando o usuário JÁ votou, a seta fica verde fixa */
+.btn-upvote.active {
+    color: #16a34a;
+}
+
+.upvote-count {
+    font-weight: bold;
+    color: #334155;
+    font-size: 1rem;
+    min-width: 15px;
+    text-align: center;
+}

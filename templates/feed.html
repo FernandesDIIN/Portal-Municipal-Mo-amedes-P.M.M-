@@ -39,6 +39,16 @@
                     <span class="post-date"><i class="far fa-clock"></i> {{ post.data_criacao[:10] }}</span>
                 </div>
 
+                <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
+                    <div class="upvote-container">
+                        <button class="btn-upvote {% if post.id in meus_votos %}active{% endif %}" onclick="votar({{ post.id }}, this)">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <span class="upvote-count" id="count-{{ post.id }}">{{ post.upvotes if post.upvotes else 0 }}</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: bold;">Votos de Relevância</span>
+                </div>
+
                 {% if session.get('user_funcao') in ['admin', 'mod'] %}
                 <form action="/toggle_fixar/{{ post.id }}" method="POST">
                     <button type="submit" class="btn-action-fixar {% if post.fixado %}desfixar{% endif %}">
@@ -57,4 +67,42 @@
         {% endfor %}
     </div>
 </div>
+
+<script>
+// A Mágica do AJAX: Atualiza sem piscar a página!
+function votar(postId, botaoClicado) {
+    // Faz o pedido aos bastidores (Python)
+    fetch(`/upvote/${postId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            alert("Você precisa fazer login para votar na relevância das publicações!");
+            return null;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            // Pega o elemento do número
+            let contador = document.getElementById(`count-${postId}`);
+            
+            // Atualiza o número na tela imediatamente
+            contador.innerText = data.upvotes;
+            
+            // Pinta a seta de Verde ou Cinza dependendo do que o Python respondeu
+            if (data.acao === 'adicionado') {
+                botaoClicado.classList.add('active');
+            } else {
+                botaoClicado.classList.remove('active');
+            }
+        }
+    })
+    .catch(error => console.error("Erro ao votar:", error));
+}
+</script>
+
 {% endblock %}
