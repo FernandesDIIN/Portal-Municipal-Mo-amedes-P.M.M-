@@ -89,6 +89,12 @@ portal_mocamedes/
 └── README.md                # Documentação do projeto
 ```
 
+ADM ACESS
+```text
+admin: admin@mocamedes.ao
+senha: admin123
+```
+
 👨‍💻 Autor
 Desenvolvido com dedicação por Tchivangulula D. Joao Fernandes [FernandesDIIN] como Trabalho de Conclusão de Curso (TCC) do ensino medio.
 Sinta-se à vontade para contribuir, abrir issues ou enviar pull requests!
