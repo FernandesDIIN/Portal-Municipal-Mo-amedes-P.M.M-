@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px; padding-top: 40px; margin-bottom: 50px;">
+    
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e2e8f0; margin-bottom: 40px;">
+        
+        <img src="https://ui-avatars.com/api/?name={{ usuario.nome | urlencode }}&size=150&rounded=true&bold=true&background=random" alt="Avatar de {{ usuario.nome }}" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        
+       <h1 style="margin: 0 0 5px 0; color: #1e293b;">{{ usuario.nome }}</h1>
+        
+        {% if session.get('user_funcao') in ['admin', 'mod'] %}
+            <p style="color: #ef4444; font-weight: bold; font-family: monospace; margin: 0 0 10px 0; font-size: 1.1rem;">ID de Controle: #{{ usuario.id }}</p>
+        {% endif %}
+        
+        <p style="color: #64748b; margin: 0; font-size: 1.1rem;">
+            {% if usuario.funcao == 'admin' %}
+                <span style="background: #1e293b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;"><i class="fas fa-crown"></i> Administrador Supremo</span>
+            {% elif usuario.funcao == 'mod' %}
+                <span style="background: #2563eb; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;"><i class="fas fa-shield-alt"></i> Moderador Oficial</span>
+            {% else %}
+                <i class="fas fa-map-marker-alt"></i> Cidadão de Moçâmedes
+            {% endif %}
+        </p>
+
+        {% if session.get('user_id') == usuario.id %}
+        <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e2e8f0; max-width: 500px; margin-left: auto; margin-right: auto;">
+            <h4 style="margin-top: 0; color: #475569;">Alterar seu Nome</h4>
+            
+            <form action="/perfil/{{ usuario.id }}" method="POST" style="display: flex; gap: 10px; width: 100%;">
+                <input type="hidden" name="acao" value="atualizar_nome">
+                <input type="text" name="nome" value="{{ usuario.nome }}" required style="flex: 8; width: 80%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <button type="submit" style="flex: 2; width: 20%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Salvar</button>
+            </form>
+            
+        </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+            <h2 style="color: #1e293b; margin: 0;"><i class="fas fa-images"></i> Memorial de {{ usuario.nome.split()[0] }}</h2>
+        </div>
+
+        {% if session.get('user_id') == usuario.id %}
+        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 30px;">
+            <h4 style="margin-top: 0; color: #334155;">Postar nova foto no Memorial</h4>
+            <form action="/perfil/{{ usuario.id }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                <input type="hidden" name="acao" value="nova_foto">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="display: block; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Legenda da Foto</label>
+                    <input type="text" name="titulo" placeholder="Ex: Visitando a praia hoje..." required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="display: block; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold;">Arquivo da Foto</label>
+                    <input type="file" name="imagem" accept="image/*" required style="width: 100%; padding: 7px; background: white; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+                <button type="submit" style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Publicar</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="memorial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%;">
+            {% for foto in fotos %}
+                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; max-width: 100%;">
+                    <a href="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" style="width: 100%; max-width: 100%; height: 200px; object-fit: cover; display: block;" alt="{{ foto.titulo }}">
+                    </a>
+                    <div style="padding: 15px;">
+                        <p style="margin: 0; font-weight: bold; color: #334155;">{{ foto.titulo }}</p>
+                        <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #94a3b8;">{{ foto.data_criacao[:10] }}</p>
+                    </div>
+
+                    {% if session.get('user_id') == usuario.id or session.get('user_funcao') in ['admin', 'mod'] %}
+                    <form action="/deletar_foto_memorial/{{ foto.id }}" method="POST" style="position: absolute; top: 10px; right: 10px; margin: 0;">
+                        <button type="submit" style="background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Apagar foto" onclick="return confirm('Deseja apagar esta foto do memorial?');">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                    <i class="fas fa-camera-retro" style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+                    <p style="color: #64748b; margin: 0;">Nenhuma foto neste memorial ainda.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

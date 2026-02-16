@@ -844,5 +844,86 @@ def editar_anuncio(id):
     conn.close()
     return render_template('editar_anuncio.html', anuncio=anuncio)
 
+# --- SISTEMA DE PERFIL E MEMORIAL DE FOTOS ---
+
+@app.route('/perfil/<int:id>', methods=['GET', 'POST'])
+def perfil(id):
+    conn = get_db_connection()
+    usuario = conn.execute('SELECT * FROM usuarios WHERE id = ?', (id,)).fetchone()
+    
+    if not usuario:
+        conn.close()
+        flash('Usuário não encontrado.')
+        return redirect(url_for('feed'))
+        
+    # Se o usuário submeteu o formulário para Mudar Nome ou Postar Foto
+    if request.method == 'POST':
+        # Proteção extra: Só o dono do perfil pode fazer alterações aqui
+        if session.get('user_id') != id:
+            flash('Acesso negado. Você não pode alterar o perfil de outra pessoa.')
+            return redirect(url_for('perfil', id=id))
+            
+        acao = request.form.get('acao')
+        
+        # 1. Altera o Nome
+        if acao == 'atualizar_nome':
+            novo_nome = request.form.get('nome')
+            conn.execute('UPDATE usuarios SET nome = ? WHERE id = ?', (novo_nome, id))
+            conn.commit()
+            session['user_nome'] = novo_nome # Atualiza na tela do usuário
+            flash('Seu nome foi atualizado com sucesso!')
+            
+        # 2. Adiciona foto no Memorial
+        elif acao == 'nova_foto':
+            titulo = request.form.get('titulo')
+            arquivo = request.files.get('imagem')
+            
+            if arquivo and arquivo.filename != '':
+                nome_seguro = secure_filename(arquivo.filename)
+                import random
+                nome_final = f"memorial_{id}_{random.randint(1000, 9999)}_{nome_seguro}"
+                
+                pasta = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_usuarios')
+                os.makedirs(pasta, exist_ok=True)
+                arquivo.save(os.path.join(pasta, nome_final))
+                
+                conn.execute('INSERT INTO galeria_usuarios (usuario_id, titulo, nome_imagem) VALUES (?, ?, ?)',
+                             (id, titulo, nome_final))
+                conn.commit()
+                flash('Foto adicionada ao seu Memorial de Moçâmedes!')
+                
+        return redirect(url_for('perfil', id=id))
+
+    # Carrega as fotos do memorial
+    fotos = conn.execute('SELECT * FROM galeria_usuarios WHERE usuario_id = ? ORDER BY data_criacao DESC', (id,)).fetchall()
+    conn.close()
+    
+    return render_template('perfil.html', usuario=usuario, fotos=fotos)
+
+@app.route('/deletar_foto_memorial/<int:id>', methods=['POST'])
+def deletar_foto_memorial(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    conn = get_db_connection()
+    foto = conn.execute('SELECT * FROM galeria_usuarios WHERE id = ?', (id,)).fetchone()
+    
+    # Regra de Moderação: Dono ou Admin/Mod apagam
+    if foto and (session['user_id'] == foto['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']):
+        import os
+        try:
+            caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_usuarios', foto['nome_imagem'])
+            if os.path.exists(caminho):
+                os.remove(caminho)
+        except: pass
+            
+        conn.execute('DELETE FROM galeria_usuarios WHERE id = ?', (id,))
+        conn.commit()
+        flash('Foto removida do memorial.')
+        
+    conn.close()
+    # request.referrer faz o usuário voltar exatamente para a página de onde clicou
+    return redirect(request.referrer or url_for('feed'))
+
 if __name__ == '__main__':
     app.run(debug=True)

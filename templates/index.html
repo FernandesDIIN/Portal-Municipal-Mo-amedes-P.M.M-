@@ -8,10 +8,16 @@
         <div class="hero-content">
             <h1>Bem-vindo ao Portal de Moçâmedes</h1>
             <p>Sua central única de informações, serviços e conexão com a nossa comunidade no Namibe.</p>
-            <div class="hero-buttons">
-                <a href="/diretorio" class="btn btn-white">Ver Diretório</a>
-                <a href="/feed" class="btn btn-blue">Feed Comunitário</a>
-                <a href="/galeria" class="btn btn-white" style="background: transparent; color: white; border: 2px solid white;">Galeria</a>
+            <div class="hero-buttons" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+                <a href="/diretorio" class="btn btn-white" style="white-space: nowrap;">Ver Diretório</a>
+                <a href="/feed" class="btn btn-blue" style="white-space: nowrap;">Feed Comunitário</a>
+                <a href="/galeria" class="btn btn-white" style="background: transparent; color: white; border: 2px solid white; white-space: nowrap;">Galeria</a>
+                
+                {% if 'user_id' in session %}
+                    <a href="/perfil/{{ session['user_id'] }}" class="btn" style="background: #fbbf24; color: #1e293b; border: 2px solid #fbbf24; font-weight: bold; white-space: nowrap;">Meu Perfil</a>
+                {% else %}
+                    <a href="/login" class="btn" style="background: #fbbf24; color: #1e293b; border: 2px solid #fbbf24; font-weight: bold; white-space: nowrap;">Entrar / Cadastrar</a>
+                {% endif %}
             </div>
         </div>
     </section>
