@@ -102,15 +102,57 @@ def diretorio():
 def detalhes_local(id):
     conn = get_db_connection()
     item = conn.execute('SELECT * FROM diretorio WHERE id = ?', (id,)).fetchone()
-    
-    # Busca todas as fotos da galeria deste local específico
     fotos_galeria = conn.execute('SELECT * FROM galeria_diretorio WHERE diretorio_id = ?', (id,)).fetchall()
+    
+    # Busca todas as avaliações deste local
+    avaliacoes = conn.execute('''
+        SELECT avaliacoes.*, usuarios.nome as autor_nome 
+        FROM avaliacoes 
+        JOIN usuarios ON avaliacoes.usuario_id = usuarios.id 
+        WHERE diretorio_id = ? 
+        ORDER BY data_criacao DESC
+    ''', (id,)).fetchall()
+    
+    # Calcula a nota média
+    media_calc = conn.execute('SELECT AVG(nota) as media FROM avaliacoes WHERE diretorio_id = ?', (id,)).fetchone()['media']
+    media_estrelas = round(media_calc, 1) if media_calc else 0
+    total_avaliacoes = len(avaliacoes)
+    
+    # Verifica se o usuário atual já avaliou (para esconder o formulário e evitar spam)
+    ja_avaliou = False
+    if 'user_id' in session:
+        voto_existente = conn.execute('SELECT id FROM avaliacoes WHERE diretorio_id = ? AND usuario_id = ?', (id, session['user_id'])).fetchone()
+        if voto_existente:
+            ja_avaliou = True
+            
     conn.close()
     
     if item is None:
         return "Local não encontrado", 404
         
-    return render_template('detalhes.html', item=item, fotos=fotos_galeria)
+    return render_template('detalhes.html', item=item, fotos=fotos_galeria, avaliacoes=avaliacoes, media=media_estrelas, total=total_avaliacoes, ja_avaliou=ja_avaliou)
+
+@app.route('/avaliar_local/<int:id>', methods=['POST'])
+def avaliar_local(id):
+    if 'user_id' not in session:
+        flash('Você precisa fazer login para avaliar os locais.')
+        return redirect(url_for('login'))
+        
+    nota = request.form.get('nota')
+    comentario = request.form.get('comentario')
+    
+    if not nota:
+        flash('Por favor, selecione uma nota de 1 a 5 estrelas.')
+        return redirect(url_for('detalhes_local', id=id))
+        
+    conn = get_db_connection()
+    conn.execute('INSERT INTO avaliacoes (diretorio_id, usuario_id, nota, comentario) VALUES (?, ?, ?, ?)',
+                 (id, session['user_id'], int(nota), comentario))
+    conn.commit()
+    conn.close()
+    
+    flash('Avaliação publicada com sucesso! Obrigado por contribuir.')
+    return redirect(url_for('detalhes_local', id=id))
 
 # NOVA ROTA: Apenas Admins podem mandar foto para a galeria
 @app.route('/upload_galeria/<int:id>', methods=['POST'])

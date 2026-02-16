@@ -1181,3 +1181,58 @@ input, button {
     min-width: 15px;
     text-align: center;
 }
+
+/* =========================================
+   SISTEMA DE AVALIAÇÕES (ESTRELAS)
+   ========================================= */
+
+/* O truque do flex-direction: row-reverse permite que o CSS 
+   "acenda" as estrelas anteriores ao passar o rato */
+.star-rating-form {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+/* Esconde as bolinhas feias do rádio */
+.star-rating-form input {
+    display: none;
+}
+
+/* Transforma o texto em estrelas cinzas clicáveis */
+.star-rating-form label {
+    color: #cbd5e1;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+/* Acende a estrela selecionada e todas que vêm "depois" (que na verdade estão antes por causa do reverse) */
+.star-rating-form input:checked ~ label {
+    color: #fbbf24; /* Amarelo ouro */
+}
+
+/* Efeito de passar o rato por cima */
+.star-rating-form label:hover,
+.star-rating-form label:hover ~ label {
+    color: #f59e0b; /* Amarelo mais escuro */
+}
+
+/* Estilo da caixa de comentários das pessoas */
+.review-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.review-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
