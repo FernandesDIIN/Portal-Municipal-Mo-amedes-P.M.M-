@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container" style="max-width: 600px; margin: 40px auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2><i class="fas fa-edit"></i> Editar Anúncio</h2>
+        <a href="/marketplace" style="color: #64748b; font-weight: bold; text-decoration: none;"><i class="fas fa-arrow-left"></i> Cancelar</a>
+    </div>
+
+    <div class="admin-card" style="padding: 30px;">
+        <form method="POST" action="/editar_anuncio/{{ anuncio.id }}" enctype="multipart/form-data">
+            
+            <div class="form-group full-width">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Título do Anúncio</label>
+                <input type="text" name="titulo" value="{{ anuncio.titulo }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Preço (Kz)</label>
+                    <input type="text" name="preco" value="{{ anuncio.preco }}" placeholder="Ex: 15000 ou Grátis" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                
+                <div class="form-group" style="flex: 1;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Categoria</label>
+                    <select name="categoria" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                        <option value="Imóveis" {% if anuncio.categoria == 'Imóveis' %}selected{% endif %}>Imóveis</option>
+                        <option value="Veículos" {% if anuncio.categoria == 'Veículos' %}selected{% endif %}>Veículos</option>
+                        <option value="Eletrônicos" {% if anuncio.categoria == 'Eletrônicos' %}selected{% endif %}>Eletrônicos</option>
+                        <option value="Serviços" {% if anuncio.categoria == 'Serviços' %}selected{% endif %}>Serviços</option>
+                        <option value="Outros" {% if anuncio.categoria == 'Outros' %}selected{% endif %}>Outros</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Telefone / Contato</label>
+                <input type="text" name="contato" value="{{ anuncio.contato }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Descrição</label>
+                <textarea name="descricao" rows="4" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">{{ anuncio.descricao }}</textarea>
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 15px; background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #475569;"><i class="fas fa-camera"></i> Atualizar Foto (Opcional)</label>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 0;">Deixe em branco para manter a foto atual.</p>
+                <input type="file" name="imagem" accept="image/*" style="width: 100%;">
+            </div>
+
+            <button type="submit" class="btn-submit full-width" style="background-color: #2563eb; font-size: 1.1rem; width: 100%; margin-top: 20px;">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

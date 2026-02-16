@@ -69,6 +69,24 @@
                     </a>
                 </div>
 
+                {% if 'user_id' in session and (session['user_id'] == item.usuario_id or session.get('user_funcao') in ['admin', 'mod']) %}
+                <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                    
+                    {% if session['user_id'] == item.usuario_id %}
+                    <a href="/editar_anuncio/{{ item.id }}" style="color: #2563eb; font-size: 0.85rem; text-decoration: none; font-weight: bold; padding: 5px 10px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 4px; transition: 0.2s; flex: 1; text-align: center;">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    {% endif %}
+                    
+                    <form action="/deletar_anuncio/{{ item.id }}" method="POST" style="margin: 0; flex: 1;">
+                        <button type="submit" style="color: #ef4444; cursor: pointer; font-size: 0.85rem; font-weight: bold; padding: 5px 10px; border: 1px solid #fecaca; background: #fef2f2; border-radius: 4px; transition: 0.2s; width: 100%;" onclick="return confirm('Tem certeza que deseja apagar este anúncio definitivamente?');">
+                            <i class="fas fa-trash-alt"></i> Excluir
+                        </button>
+                    </form>
+                    
+                </div>
+                {% endif %}
+
             </div>
         {% else %}
             <div class="empty-state">

@@ -659,5 +659,190 @@ def upvote(post_id):
     
     return jsonify({'upvotes': novo_total, 'acao': acao})
 
+# --- CONTROLE DE AVALIAÇÕES (EDITAR / EXCLUIR) ---
+
+@app.route('/deletar_avaliacao/<int:id>', methods=['POST'])
+def deletar_avaliacao(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    av = conn.execute('SELECT * FROM avaliacoes WHERE id = ?', (id,)).fetchone()
+
+    if av:
+        # Regra de Ouro: Pode apagar se for o Autor OU se for Admin/Mod
+        if session['user_id'] == av['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
+            conn.execute('DELETE FROM avaliacoes WHERE id = ?', (id,))
+            conn.commit()
+            flash('Avaliação excluída com sucesso.')
+            
+    conn.close()
+    return redirect(url_for('detalhes_local', id=av['diretorio_id']))
+
+@app.route('/editar_avaliacao/<int:id>', methods=['GET', 'POST'])
+def editar_avaliacao(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    av = conn.execute('SELECT * FROM avaliacoes WHERE id = ?', (id,)).fetchone()
+
+    # Regra de Ouro: APENAS o Autor pode editar sua própria avaliação
+    if not av or session['user_id'] != av['usuario_id']:
+        conn.close()
+        flash('Acesso negado. Você só pode editar suas próprias avaliações.')
+        return redirect(url_for('diretorio'))
+
+    if request.method == 'POST':
+        nota = request.form.get('nota')
+        comentario = request.form.get('comentario')
+        
+        conn.execute('UPDATE avaliacoes SET nota = ?, comentario = ? WHERE id = ?', (nota, comentario, id))
+        conn.commit()
+        conn.close()
+        flash('Sua avaliação foi atualizada!')
+        return redirect(url_for('detalhes_local', id=av['diretorio_id']))
+
+    # Busca o nome do local para mostrar na tela de edição
+    local = conn.execute('SELECT nome FROM diretorio WHERE id = ?', (av['diretorio_id'],)).fetchone()
+    conn.close()
+    
+    return render_template('editar_avaliacao.html', av=av, local=local)
+
+# --- CONTROLE DE POSTAGENS DO FEED (EDITAR / EXCLUIR) ---
+
+@app.route('/deletar_postagem/<int:id>', methods=['POST'])
+def deletar_postagem(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    post = conn.execute('SELECT * FROM postagens WHERE id = ?', (id,)).fetchone()
+
+    if post:
+        # Regra: Pode apagar se for o Autor OU se for Admin/Mod
+        if session['user_id'] == post['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
+            # 1. Apaga os votos vinculados a este post (proteção do banco)
+            conn.execute('DELETE FROM postagens_upvotes WHERE postagem_id = ?', (id,))
+            # 2. Apaga o post
+            conn.execute('DELETE FROM postagens WHERE id = ?', (id,))
+            conn.commit()
+            flash('Publicação excluída com sucesso.')
+            
+    conn.close()
+    return redirect(url_for('feed'))
+
+@app.route('/editar_postagem/<int:id>', methods=['GET', 'POST'])
+def editar_postagem(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    post = conn.execute('SELECT * FROM postagens WHERE id = ?', (id,)).fetchone()
+
+    # Regra: APENAS o Autor pode editar sua própria postagem
+    if not post or session['user_id'] != post['usuario_id']:
+        conn.close()
+        flash('Acesso negado. Você só pode editar suas próprias publicações.')
+        return redirect(url_for('feed'))
+
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        conteudo = request.form['conteudo']
+        categoria = request.form['categoria']
+        
+        conn.execute('UPDATE postagens SET titulo = ?, conteudo = ?, categoria = ? WHERE id = ?', 
+                     (titulo, conteudo, categoria, id))
+        conn.commit()
+        conn.close()
+        flash('Sua publicação foi atualizada!')
+        return redirect(url_for('feed'))
+
+    conn.close()
+    return render_template('editar_postagem.html', post=post)
+
+# --- CONTROLE DE ANÚNCIOS / MARKETPLACE (EDITAR / EXCLUIR) ---
+
+@app.route('/deletar_anuncio/<int:id>', methods=['POST'])
+def deletar_anuncio(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    anuncio = conn.execute('SELECT * FROM marketplace WHERE id = ?', (id,)).fetchone()
+
+    if anuncio:
+        # Regra: Pode apagar se for o Autor OU se for Admin/Mod
+        if session['user_id'] == anuncio['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
+            
+            # (Opcional) Tenta apagar a foto da pasta para economizar espaço no servidor
+            import os
+            if anuncio['imagem'] and anuncio['imagem'] != 'default_produto.jpg':
+                try:
+                    caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'produtos', anuncio['imagem'])
+                    if os.path.exists(caminho):
+                        os.remove(caminho)
+                except:
+                    pass
+            
+            # Apaga do banco
+            conn.execute('DELETE FROM marketplace WHERE id = ?', (id,))
+            conn.commit()
+            flash('Anúncio excluído com sucesso.')
+            
+    conn.close()
+    return redirect(url_for('marketplace'))
+
+@app.route('/editar_anuncio/<int:id>', methods=['GET', 'POST'])
+def editar_anuncio(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    anuncio = conn.execute('SELECT * FROM marketplace WHERE id = ?', (id,)).fetchone()
+
+    # Regra: APENAS o Autor pode editar seu próprio anúncio
+    if not anuncio or session['user_id'] != anuncio['usuario_id']:
+        conn.close()
+        flash('Acesso negado. Você só pode editar seus próprios anúncios.')
+        return redirect(url_for('marketplace'))
+
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        categoria = request.form['categoria']
+        contato = request.form['contato']
+        
+        # Lógica para atualizar a imagem, se o usuário enviou uma nova
+        arquivo = request.files.get('imagem')
+        
+        if arquivo and arquivo.filename != '':
+            nome_seguro = secure_filename(arquivo.filename)
+            import random
+            nome_final = f"prod_{random.randint(1000, 9999)}_{nome_seguro}"
+            arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], 'produtos', nome_final))
+            
+            conn.execute('''
+                UPDATE marketplace 
+                SET titulo=?, descricao=?, preco=?, categoria=?, contato=?, imagem=? 
+                WHERE id=?
+            ''', (titulo, descricao, preco, categoria, contato, nome_final, id))
+        else:
+            # Salva sem alterar a foto atual
+            conn.execute('''
+                UPDATE marketplace 
+                SET titulo=?, descricao=?, preco=?, categoria=?, contato=? 
+                WHERE id=?
+            ''', (titulo, descricao, preco, categoria, contato, id))
+            
+        conn.commit()
+        conn.close()
+        flash('Seu anúncio foi atualizado!')
+        return redirect(url_for('marketplace'))
+
+    conn.close()
+    return render_template('editar_anuncio.html', anuncio=anuncio)
+
 if __name__ == '__main__':
     app.run(debug=True)

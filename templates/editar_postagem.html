@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container" style="max-width: 600px; margin: 40px auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2><i class="fas fa-edit"></i> Editar Publicação</h2>
+        <a href="/feed" style="color: #64748b; font-weight: bold; text-decoration: none;"><i class="fas fa-arrow-left"></i> Cancelar</a>
+    </div>
+
+    <div class="admin-card" style="padding: 30px;">
+        <form method="POST" action="/editar_postagem/{{ post.id }}">
+            
+            <div class="form-group full-width">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Título</label>
+                <input type="text" name="titulo" value="{{ post.titulo }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Categoria</label>
+                <select name="categoria" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                    <option value="Notícia" {% if post.categoria == 'Notícia' %}selected{% endif %}>Notícia</option>
+                    <option value="Evento" {% if post.categoria == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Aviso" {% if post.categoria == 'Aviso' %}selected{% endif %}>Aviso Público</option>
+                    <option value="Classificado" {% if post.categoria == 'Classificado' %}selected{% endif %}>Classificado</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width" style="margin-top: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Conteúdo</label>
+                <textarea name="conteudo" rows="6" class="form-textarea" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">{{ post.conteudo }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-submit full-width" style="background-color: #2563eb; font-size: 1.1rem; width: 100%; margin-top: 20px;">
+                <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
