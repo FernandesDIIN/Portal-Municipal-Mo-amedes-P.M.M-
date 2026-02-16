@@ -4,7 +4,7 @@
 <div class="home-container">
     
     <section class="hero">
-        <img src="https://picsum.photos/id/10/1200/400" alt="Moçâmedes Landscape" class="hero-bg">
+        <img src="{{ url_for('static', filename='img/hero_mocamedes.jpg') }}" alt="Paisagem de Moçâmedes" class="hero-bg">
         <div class="hero-content">
             <h1>Bem-vindo ao Portal de Moçâmedes</h1>
             <p>Sua central única de informações, serviços e conexão com a nossa comunidade no Namibe.</p>
@@ -64,10 +64,10 @@
             <h2>Sobre Moçâmedes</h2>
             <p>Moçâmedes, a capital da província do Namibe em Angola, é uma cidade vibrante entre o deserto e o mar. Conhecida pela sua arquitetura colonial e o seu clima único, a cidade está em constante crescimento.</p>
             <p>Este portal nasceu da necessidade de organizar as informações do nosso município, facilitando a vida do cidadão e promovendo o desenvolvimento local de forma digital e inclusiva.</p>
-            <a href="#" class="link-arrow">Saiba mais sobre a história do Namibe →</a>
+            <a href="https://pt.wikipedia.org/wiki/Mo%C3%A7%C3%A2medes" target="_blank" class="link-arrow">Saiba mais sobre a história do Namibe →</a>
         </div>
         <div class="info-image">
-            <img src="https://picsum.photos/id/28/600/400" alt="Namibe Coast">
+            <img src="{{ url_for('static', filename='img/namibe_info.jpg') }}" alt="Costa do Namibe">
         </div>
     </section>
 
