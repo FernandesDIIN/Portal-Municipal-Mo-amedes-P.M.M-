@@ -1,2 +1,0 @@
-admin: admin@mocamedes.ao
-senha: admin123
