@@ -11,6 +11,14 @@
         <div class="hero-overlay">
             <span class="badge-hero {{ item.categoria }}">{{ item.categoria }}</span>
             <h1>{{ item.nome }}</h1>
+            
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 10px;">
+                <span style="background: #fbbf24; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-star"></i> {{ media }}
+                </span>
+                <span style="color: #f8fafc; font-size: 0.95rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">(Baseado em {{ total }} avaliações)</span>
+            </div>
+
             <p class="sub-hero">{{ item.subcategoria }}</p>
         </div>
     </div>
@@ -63,6 +71,61 @@
                 </form>
             </div>
             {% endif %}
+            
+            <hr class="divider">
+            <h3><i class="fas fa-star"></i> Avaliações dos Cidadãos</h3>
+
+            {% if 'user_id' in session %}
+                {% if not ja_avaliou %}
+                <div style="background: white; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h4 style="margin-top: 0; color: #334155;">Deixe sua avaliação</h4>
+                    <form action="/avaliar_local/{{ item.id }}" method="POST">
+                        
+                        <div class="star-rating-form" style="margin-bottom: 15px;">
+                            <input type="radio" id="star5" name="nota" value="5" required/><label for="star5" title="5 estrelas"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star4" name="nota" value="4" /><label for="star4" title="4 estrelas"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star3" name="nota" value="3" /><label for="star3" title="3 estrelas"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star2" name="nota" value="2" /><label for="star2" title="2 estrelas"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star1" name="nota" value="1" /><label for="star1" title="1 estrela"><i class="fas fa-star"></i></label>
+                        </div>
+
+                        <textarea name="comentario" rows="3" placeholder="Escreva sua experiência neste local (opcional)..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px;"></textarea>
+                        
+                        <button type="submit" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">Publicar Avaliação</button>
+                    </form>
+                </div>
+                {% else %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 30px; color: #166534; font-weight: bold;">
+                    <i class="fas fa-check-circle"></i> Você já avaliou este local. Obrigado!
+                </div>
+                {% endif %}
+            {% else %}
+                <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+                    <p style="color: #64748b; margin: 0;"><a href="/login" style="color: #2563eb; font-weight: bold; text-decoration: none;">Faça login</a> para avaliar este local.</p>
+                </div>
+            {% endif %}
+
+            <div class="reviews-list">
+                {% for av in avaliacoes %}
+                <div class="review-card">
+                    <div class="review-card-header">
+                        <div style="font-weight: bold; color: #334155;"><i class="fas fa-user-circle"></i> {{ av.autor_nome }}</div>
+                        <div style="color: #fbbf24;">
+                            {% for i in range(av.nota) %}★{% endfor %}
+                            <span style="color: #cbd5e1;">{% for i in range(5 - av.nota) %}★{% endfor %}</span>
+                        </div>
+                    </div>
+                    {% if av.comentario %}
+                        <p style="margin: 0; color: #475569; font-size: 0.95rem;">{{ av.comentario }}</p>
+                    {% else %}
+                        <p style="margin: 0; color: #94a3b8; font-style: italic; font-size: 0.9rem;">Avaliação sem comentário.</p>
+                    {% endif %}
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #94a3b8;">{{ av.data_criacao[:10] }}</div>
+                </div>
+                {% else %}
+                    <p style="color: #64748b; font-style: italic;">Seja o primeiro a avaliar este local!</p>
+                {% endfor %}
+            </div>
             </div> <div class="sidebar-info">
             <div class="info-box">
                 <h3><i class="fas fa-info-circle"></i> Informações Úteis</h3>

@@ -4,6 +4,6 @@ senha: admin123
 user test: 922806216
 senha: 123456
 
-para atualizar git add .
-git commit -m "sistema adm avançado, galeria de fotos, detalhe com foto"
+para atualizar git: git add .
+git commit -m "barra de pesquisa"
 git push
