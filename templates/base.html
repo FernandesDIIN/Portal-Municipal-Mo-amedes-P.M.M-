@@ -43,6 +43,71 @@
     <footer>
         <p>&copy; 2026 Portal Comunitário de Moçâmedes - TCC</p>
     </footer>
+    
+    <div id="lightbox" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; flex-direction: column;">
+        
+        <span onclick="fecharLightbox()" style="position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 10000;">&times;</span>
+        
+        <img id="lightbox-img" src="" style="max-width: 56%; max-height: 56vh; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-radius: 8px;">
+        
+        <button onclick="mudarFoto(-1)" style="position: absolute; left: 5%; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); color: white; border: 1px solid rgba(255, 255, 255, 0.4); font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 10000; padding: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">&#10094;</button>
+
+        <button onclick="mudarFoto(1)" style="position: absolute; right: 5%; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); color: white; border: 1px solid rgba(255, 255, 255, 0.4); font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 10000; padding: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">&#10095;</button>
+        
+    </div>
+
+    <script>
+        let galeriaImagens = [];
+        let indiceAtual = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Procura todas as imagens da página que têm a classe 'lightbox-trigger'
+            const imagens = document.querySelectorAll('.lightbox-trigger');
+            
+            imagens.forEach((img, index) => {
+                img.style.cursor = 'zoom-in'; // Muda o rato para uma lupa
+                galeriaImagens.push(img.src); // Guarda as URLs para as setinhas saberem a ordem
+                
+                // Quando clicar na foto, abre o fundo borrado
+                img.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    abrirLightbox(index);
+                });
+            });
+        });
+
+        function abrirLightbox(index) {
+            if (galeriaImagens.length === 0) return;
+            indiceAtual = index;
+            document.getElementById('lightbox-img').src = galeriaImagens[indiceAtual];
+            document.getElementById('lightbox').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Impede a página de rolar para baixo
+        }
+
+        function fecharLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Devolve o scroll normal
+        }
+
+        function mudarFoto(direcao) {
+            indiceAtual += direcao;
+            // Se passar da última foto, volta para a primeira (Loop)
+            if (indiceAtual >= galeriaImagens.length) indiceAtual = 0;
+            // Se voltar antes da primeira, vai para a última (Loop)
+            if (indiceAtual < 0) indiceAtual = galeriaImagens.length - 1;
+            
+            document.getElementById('lightbox-img').src = galeriaImagens[indiceAtual];
+        }
+
+        // Bônus de Qualidade: Fechar com a tecla ESC ou mudar com as setas do teclado!
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                if (e.key === "Escape") fecharLightbox();
+                if (e.key === "ArrowRight") mudarFoto(1);
+                if (e.key === "ArrowLeft") mudarFoto(-1);
+            }
+        });
+    </script>
 
 </body>
 </html>

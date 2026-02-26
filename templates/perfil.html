@@ -63,9 +63,7 @@
         <div class="memorial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%;">
             {% for foto in fotos %}
                 <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; max-width: 100%;">
-                    <a href="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" target="_blank">
-                        <img src="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" style="width: 100%; max-width: 100%; height: 200px; object-fit: cover; display: block;" alt="{{ foto.titulo }}">
-                    </a>
+                    <img src="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" class="lightbox-trigger" style="width: 100%; max-width: 100%; height: 200px; object-fit: cover; display: block; transition: transform 0.3s;" alt="{{ foto.titulo }}">
                     <div style="padding: 15px;">
                         <p style="margin: 0; font-weight: bold; color: #334155;">{{ foto.titulo }}</p>
                         <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #94a3b8;">{{ foto.data_criacao[:10] }}</p>

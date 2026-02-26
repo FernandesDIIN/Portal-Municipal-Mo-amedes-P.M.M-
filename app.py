@@ -183,6 +183,33 @@ def upload_galeria(id):
         flash('Foto adicionada à galeria com sucesso!')
         
     return redirect(url_for('detalhes_local', id=id))
+
+@app.route('/deletar_foto_diretorio/<int:id>', methods=['POST'])
+def deletar_foto_diretorio(id):
+    if session.get('user_funcao') not in ['admin', 'mod']:
+        flash('Acesso negado. Apenas administradores e moderadores podem apagar fotos do diretório.')
+        return redirect(request.referrer or url_for('diretorio'))
+
+    conn = get_db_connection()
+    foto = conn.execute('SELECT * FROM galeria_diretorio WHERE id = ?', (id,)).fetchone()
+    
+    if foto:
+        import os
+        try:
+            # Apaga o arquivo físico da pasta para poupar espaço
+            caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria', foto['nome_imagem'])
+            if os.path.exists(caminho):
+                os.remove(caminho)
+        except: 
+            pass
+            
+        # Apaga o registo do banco de dados
+        conn.execute('DELETE FROM galeria_diretorio WHERE id = ?', (id,))
+        conn.commit()
+        flash('Foto removida da galeria do local.')
+        
+    conn.close()
+    return redirect(request.referrer)
     
 @app.route('/marketplace')
 def marketplace():
