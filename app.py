@@ -34,11 +34,6 @@ def feed():
     busca = request.args.get('q')
     
     # A MÁGICA DO ALGORITMO DE RELEVÂNCIA TEMPORAL (Estilo Reddit)
-    # 1. strftime('%s', 'now') = Pega a data/hora atual em segundos
-    # 2. strftime('%s', data_criacao) = Pega a data/hora do post em segundos
-    # 3. Diminuímos um do outro e dividimos por 3600 para descobrir as HORAS exatas de vida do post
-    # 4. Fórmula aplicada: upvotes / (horas_de_vida + 2.0)
-    
     sql = '''
         SELECT postagens.*, usuarios.nome as autor_nome, usuarios.foto_perfil,
         
@@ -77,21 +72,29 @@ def diretorio():
     conn = get_db_connection()
     
     categoria_filtro = request.args.get('categoria')
-    busca = request.args.get('q') # Pega o que o usuário digitou
+    busca = request.args.get('q') 
     
-    sql = 'SELECT * FROM diretorio WHERE 1=1'
+    # A MÁGICA: O SQL agora calcula a média (AVG) e o total (COUNT) de avaliações para cada local
+    sql = '''
+        SELECT diretorio.*, 
+               AVG(avaliacoes.nota) as media_estrelas,
+               COUNT(avaliacoes.id) as total_avaliacoes
+        FROM diretorio 
+        LEFT JOIN avaliacoes ON diretorio.id = avaliacoes.diretorio_id
+        WHERE 1=1
+    '''
     params = []
 
     if categoria_filtro:
-        sql += ' AND categoria = ?'
+        sql += ' AND diretorio.categoria = ?'
         params.append(categoria_filtro)
         
     if busca:
-        sql += ' AND (nome LIKE ? OR descricao_curta LIKE ? OR subcategoria LIKE ?)'
+        sql += ' AND (diretorio.nome LIKE ? OR diretorio.descricao_curta LIKE ? OR diretorio.subcategoria LIKE ?)'
         termo = f'%{busca}%'
         params.extend([termo, termo, termo])
         
-    sql += ' ORDER BY nome'
+    sql += ' GROUP BY diretorio.id ORDER BY diretorio.nome'
     
     itens = conn.execute(sql, params).fetchall()
     conn.close()
@@ -154,7 +157,6 @@ def avaliar_local(id):
     flash('Avaliação publicada com sucesso! Obrigado por contribuir.')
     return redirect(url_for('detalhes_local', id=id))
 
-# NOVA ROTA: Apenas Admins podem mandar foto para a galeria
 @app.route('/upload_galeria/<int:id>', methods=['POST'])
 def upload_galeria(id):
     if session.get('user_funcao') != 'admin':
@@ -164,17 +166,13 @@ def upload_galeria(id):
     if arquivo and arquivo.filename != '':
         nome_seguro = secure_filename(arquivo.filename)
         import random
-        # Cria um nome único: galeria_1_4582_foto.jpg
         nome_final = f"galeria_{id}_{random.randint(1000, 9999)}_{nome_seguro}"
         
-        # Garante que a pasta 'galeria' existe dentro de uploads
         pasta_galeria = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria')
         os.makedirs(pasta_galeria, exist_ok=True)
         
-        # Salva o arquivo na pasta
         arquivo.save(os.path.join(pasta_galeria, nome_final))
         
-        # Salva no banco de dados
         conn = get_db_connection()
         conn.execute('INSERT INTO galeria_diretorio (diretorio_id, nome_imagem) VALUES (?, ?)', (id, nome_final))
         conn.commit()
@@ -196,14 +194,12 @@ def deletar_foto_diretorio(id):
     if foto:
         import os
         try:
-            # Apaga o arquivo físico da pasta para poupar espaço
             caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria', foto['nome_imagem'])
             if os.path.exists(caminho):
                 os.remove(caminho)
         except: 
             pass
             
-        # Apaga o registo do banco de dados
         conn.execute('DELETE FROM galeria_diretorio WHERE id = ?', (id,))
         conn.commit()
         flash('Foto removida da galeria do local.')
@@ -215,12 +211,9 @@ def deletar_foto_diretorio(id):
 def marketplace():
     conn = get_db_connection()
     
-    # Pega os filtros da URL (ex: ?tipo=oferta ou ?q=carro)
-    tipo_filtro = request.args.get('tipo') # pode ser 'oferta' ou 'procura'
-    busca = request.args.get('q')          # O que a pessoa digitou na pesquisa
+    tipo_filtro = request.args.get('tipo') 
+    busca = request.args.get('q')          
 
-    # Começa a montar o SQL
-    # Fazemos JOIN com usuarios para mostrar o nome/foto de quem anunciou
     sql = '''
         SELECT marketplace.*, usuarios.nome as autor_nome, usuarios.foto_perfil 
         FROM marketplace 
@@ -229,15 +222,13 @@ def marketplace():
     '''
     params = []
 
-    # Se clicou num filtro (Oferta ou Procura), adiciona ao SQL
     if tipo_filtro:
         sql += " AND tipo_anuncio = ?"
         params.append(tipo_filtro)
     
-    # Se digitou algo na busca, pesquisa no Título, Descrição ou Categoria
     if busca:
         sql += " AND (titulo LIKE ? OR descricao LIKE ? OR categoria LIKE ?)"
-        termo = f'%{busca}%' # O % serve para buscar "carro" dentro de "carroceria"
+        termo = f'%{busca}%' 
         params.extend([termo, termo, termo])
 
     sql += " ORDER BY data_criacao DESC"
@@ -249,47 +240,61 @@ def marketplace():
 
 @app.route('/anunciar', methods=['GET', 'POST'])
 def anunciar():
-    # 1. Verifica se o usuário está logado (só cidadãos logados podem anunciar)
     if 'user_id' not in session:
         flash('Você precisa fazer login ou se registrar para criar um anúncio.')
         return redirect(url_for('login'))
 
-    # 2. Se o formulário foi enviado (POST)
     if request.method == 'POST':
         titulo = request.form['titulo']
         descricao = request.form['descricao']
-        tipo_anuncio = request.form['tipo_anuncio'] # 'oferta' ou 'procura'
+        tipo_anuncio = request.form['tipo_anuncio']
         categoria = request.form['categoria']
-        preco = request.form.get('preco', '') # Opcional
+        preco = request.form.get('preco', '') 
         contato = request.form['contato']
+        
+        # --- LÓGICA DE UPLOAD DAS DUAS IMAGENS ---
+        imagem1 = request.files.get('imagem1')
+        imagem2 = request.files.get('imagem2')
+        
+        nome_img1 = None
+        nome_img2 = None
+        import random
+        
+        pasta_mkt = os.path.join(app.config['UPLOAD_FOLDER'], 'marketplace')
+        os.makedirs(pasta_mkt, exist_ok=True)
+
+        if imagem1 and imagem1.filename != '':
+            nome_seguro = secure_filename(imagem1.filename)
+            nome_img1 = f"mkt_1_{random.randint(1000, 9999)}_{nome_seguro}"
+            imagem1.save(os.path.join(pasta_mkt, nome_img1))
+
+        if imagem2 and imagem2.filename != '':
+            nome_seguro = secure_filename(imagem2.filename)
+            nome_img2 = f"mkt_2_{random.randint(1000, 9999)}_{nome_seguro}"
+            imagem2.save(os.path.join(pasta_mkt, nome_img2))
         
         conn = get_db_connection()
         conn.execute('''
-            INSERT INTO marketplace (titulo, descricao, tipo_anuncio, categoria, preco, contato, usuario_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (titulo, descricao, tipo_anuncio, categoria, preco, contato, session['user_id']))
+            INSERT INTO marketplace (titulo, descricao, tipo_anuncio, categoria, preco, contato, usuario_id, imagem1, imagem2)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (titulo, descricao, tipo_anuncio, categoria, preco, contato, session['user_id'], nome_img1, nome_img2))
         conn.commit()
         conn.close()
         
         flash('Seu anúncio foi publicado com sucesso!')
         return redirect(url_for('marketplace'))
 
-    # 3. Se for apenas para abrir a página (GET)
-    # Sugere o contato que o usuário usou no cadastro (telefone ou email)
     contato_padrao = session.get('user_contato', '')
-    
     return render_template('anunciar.html', contato_padrao=contato_padrao)
     
 # --- AUTENTICAÇÃO (LOGIN / REGISTRO) ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # O campo agora se chama 'login_input' (pode ser email ou telefone)
         login_input = request.form['login_input']
         senha = request.form['senha']
         
         conn = get_db_connection()
-        # A mágica do SQL: procura se o texto digitado bate com email OU telefone
         user = conn.execute('SELECT * FROM usuarios WHERE email = ? OR telefone = ?', 
                             (login_input, login_input)).fetchone()
         conn.close()
@@ -297,7 +302,6 @@ def login():
         if user and user['senha'] == senha:
             session['user_id'] = user['id']
             session['user_nome'] = user['nome']
-            # Salva o contato que existir (email ou telefone)
             session['user_contato'] = user['email'] if user['email'] else user['telefone']
             session['user_funcao'] = user['funcao']
             
@@ -319,11 +323,9 @@ def register():
         senha = request.form['senha']
         bio = request.form['bio']
         
-        # Pega os dados (podem vir vazios)
         email = request.form.get('email')
         telefone = request.form.get('telefone')
         
-        # Validação: Tem que ter pelo menos um dos dois!
         if not email and not telefone:
             flash('Erro: Você precisa fornecer um E-mail ou um Telefone.')
             return render_template('register.html')
@@ -351,20 +353,15 @@ def logout():
 # --- ÁREA ADMINISTRATIVA ---
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # 1. Segurança: Apenas Admin ou Mod
     if 'user_id' not in session or session.get('user_funcao') not in ['admin', 'mod']:
         flash('Acesso negado. Área restrita.')
         return redirect(url_for('login'))
         
     conn = get_db_connection()
 
-    # =========================================================
-    # 2. LÓGICA DE SALVAR DADOS
-    # =========================================================
     if request.method == 'POST':
         acao = request.form.get('acao')
         
-        # Nova Postagem
         if acao == 'nova_postagem':
             titulo = request.form['titulo']
             conteudo = request.form['conteudo']
@@ -375,7 +372,6 @@ def admin():
             conn.commit()
             flash('Postagem publicada!')
 
-        # Novo Local no Diretório (COM UPLOAD DE IMAGEM)
         elif acao == 'novo_item_diretorio':
             nome = request.form['nome']
             categoria = request.form['categoria']
@@ -387,7 +383,6 @@ def admin():
             descricao = request.form['descricao']
             historia = request.form['historia']
             
-            # Lógica de Imagem
             arquivo = request.files.get('imagem')
             nome_imagem = 'default_cover.jpg'
 
@@ -402,7 +397,6 @@ def admin():
                 
                 nome_imagem = nome_final
 
-            # Salva no Banco de Dados
             conn.execute('''
                 INSERT INTO diretorio 
                 (nome, categoria, subcategoria, tipo, telefone, endereco, horario, descricao_curta, historia_completa, imagem_capa, autor_id) 
@@ -412,39 +406,28 @@ def admin():
             conn.commit()
             flash('Local adicionado com foto!')
 
-    # =========================================================
-    # 3. LÓGICA DE BUSCA E LISTAGEM (COM LIMITES INTELIGENTES)
-    # =========================================================
-    
-    # Busca de Usuários
     busca_user = request.args.get('q_user', '').strip()
     if busca_user:
-        # Se tem busca: Procura em tudo (incluindo o ID exato) e SEM limite
         sql_users = 'SELECT * FROM usuarios WHERE email LIKE ? OR telefone LIKE ? OR nome LIKE ? OR CAST(id AS TEXT) = ? ORDER BY nome'
         termo_user = f'%{busca_user}%'
         params_users = [termo_user, termo_user, termo_user, busca_user]
     else:
-        # Se NÃO tem busca: Mostra apenas os 3 mais recentes cadastrados
         sql_users = 'SELECT * FROM usuarios ORDER BY id DESC LIMIT 3'
         params_users = []
         
     usuarios = conn.execute(sql_users, params_users).fetchall()
 
-    # Busca do Diretório
     busca_dir = request.args.get('q_dir', '').strip()
     if busca_dir:
-        # Se tem busca: Procura pelo nome SEM limite
         sql_dir = 'SELECT * FROM diretorio WHERE nome LIKE ? ORDER BY nome'
         termo_dir = f'%{busca_dir}%'
         params_dir = [termo_dir]
     else:
-        # Se NÃO tem busca: Mostra apenas os 2 mais recentes
         sql_dir = 'SELECT * FROM diretorio ORDER BY id DESC LIMIT 2'
         params_dir = []
         
     diretorio = conn.execute(sql_dir, params_dir).fetchall()
 
-    # Lista de postagens padrão
     postagens = conn.execute('SELECT * FROM postagens ORDER BY data_criacao DESC').fetchall()
     
     conn.close()
@@ -456,16 +439,13 @@ def deletar_usuario(id):
     if session.get('user_funcao') != 'admin':
         return "Acesso negado", 403
         
-    # Proteção: O Admin não pode excluir a própria conta por acidente
     if id == session['user_id']:
         flash('Você não pode excluir sua própria conta de Administrador!')
         return redirect(url_for('admin'))
 
     conn = get_db_connection()
-    # Limpa os dados do usuário para não deixar "fantasmas" no banco
     conn.execute('DELETE FROM postagens WHERE usuario_id = ?', (id,))
     conn.execute('DELETE FROM marketplace WHERE usuario_id = ?', (id,))
-    # Por fim, exclui o usuário
     conn.execute('DELETE FROM usuarios WHERE id = ?', (id,))
     
     conn.commit()
@@ -478,7 +458,6 @@ def deletar_usuario(id):
 def galeria():
     conn = get_db_connection()
     
-    # Se for um POST (envio de foto) e o usuário for ADMIN
     if request.method == 'POST' and session.get('user_funcao') == 'admin':
         titulo = request.form['titulo']
         local = request.form['local']
@@ -489,21 +468,17 @@ def galeria():
             import random
             nome_final = f"mun_{random.randint(1000, 9999)}_{nome_seguro}"
             
-            # Cria a pasta caso ela não exista
             pasta = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_municipio')
             os.makedirs(pasta, exist_ok=True)
             
-            # Salva o arquivo
             arquivo.save(os.path.join(pasta, nome_final))
             
-            # Salva no banco
             conn.execute('INSERT INTO galeria_municipio (titulo, local, nome_imagem) VALUES (?, ?, ?)', 
                          (titulo, local, nome_final))
             conn.commit()
             flash('Foto adicionada à galeria oficial!')
             return redirect(url_for('galeria'))
 
-    # Busca todas as fotos para exibir
     fotos = conn.execute('SELECT * FROM galeria_municipio ORDER BY data_criacao DESC').fetchall()
     conn.close()
     
@@ -511,25 +486,21 @@ def galeria():
 
 @app.route('/deletar_foto_galeria/<int:id>', methods=['POST'])
 def deletar_foto_galeria(id):
-    # Proteção extra: Só admin pode apagar
     if session.get('user_funcao') != 'admin':
         flash('Acesso negado.')
         return redirect(url_for('galeria'))
         
     conn = get_db_connection()
-    # 1. Pega o nome do arquivo para apagar da pasta
     foto = conn.execute('SELECT nome_imagem FROM galeria_municipio WHERE id = ?', (id,)).fetchone()
     
     if foto:
         try:
-            # Apaga o arquivo físico da pasta
             caminho_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], 'galeria_municipio', foto['nome_imagem'])
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
         except Exception as e:
             print(f"Erro ao apagar arquivo físico: {e}")
         
-        # 2. Apaga o registro do banco de dados
         conn.execute('DELETE FROM galeria_municipio WHERE id = ?', (id,))
         conn.commit()
         flash('Foto excluída com sucesso!')
@@ -546,9 +517,7 @@ def deletar_diretorio(id):
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    # 1. Primeiro apaga as fotos da galeria vinculadas a este local (proteção do banco)
     conn.execute('DELETE FROM galeria_diretorio WHERE diretorio_id = ?', (id,))
-    # 2. Depois apaga o local em si
     conn.execute('DELETE FROM diretorio WHERE id = ?', (id,))
     conn.commit()
     conn.close()
@@ -563,7 +532,6 @@ def editar_diretorio(id):
 
     conn = get_db_connection()
     
-    # Se o administrador alterou os dados e clicou em Salvar (POST)
     if request.method == 'POST':
         nome = request.form['nome']
         categoria = request.form['categoria']
@@ -575,7 +543,6 @@ def editar_diretorio(id):
         descricao = request.form['descricao']
         historia = request.form['historia']
         
-        # Verifica se ele mandou uma foto nova
         arquivo = request.files.get('imagem')
         
         if arquivo and arquivo.filename != '':
@@ -584,14 +551,12 @@ def editar_diretorio(id):
             nome_final = f"{random.randint(1000, 9999)}_{nome_seguro}"
             arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], 'capas', nome_final))
             
-            # Atualiza TUDO, incluindo a foto nova
             conn.execute('''
                 UPDATE diretorio 
                 SET nome=?, categoria=?, subcategoria=?, tipo=?, telefone=?, endereco=?, horario=?, descricao_curta=?, historia_completa=?, imagem_capa=?
                 WHERE id=?
             ''', (nome, categoria, subcategoria, tipo, telefone, endereco, horario, descricao, historia, nome_final, id))
         else:
-            # Atualiza apenas os textos, mantendo a foto antiga intacta
             conn.execute('''
                 UPDATE diretorio 
                 SET nome=?, categoria=?, subcategoria=?, tipo=?, telefone=?, endereco=?, horario=?, descricao_curta=?, historia_completa=?
@@ -603,7 +568,6 @@ def editar_diretorio(id):
         flash('Informações do local atualizadas com sucesso!')
         return redirect(url_for('admin'))
 
-    # Se ele apenas clicou em "Editar" (GET), carrega os dados atuais para preencher o formulário
     item = conn.execute('SELECT * FROM diretorio WHERE id = ?', (id,)).fetchone()
     conn.close()
     
@@ -616,7 +580,6 @@ def editar_diretorio(id):
 
 @app.route('/toggle_fixar/<int:id>', methods=['POST'])
 def toggle_fixar(id):
-    # Apenas admin ou mod podem fixar
     if session.get('user_funcao') not in ['admin', 'mod']:
         return "Acesso negado", 403
 
@@ -624,11 +587,9 @@ def toggle_fixar(id):
     post = conn.execute('SELECT fixado FROM postagens WHERE id = ?', (id,)).fetchone()
 
     if post['fixado'] == 1:
-        # Se já está fixado, desfixa
         conn.execute('UPDATE postagens SET fixado = 0 WHERE id = ?', (id,))
         flash('Postagem removida do topo.')
     else:
-        # Tenta fixar. Conta quantos já estão fixados.
         fixados_count = conn.execute('SELECT COUNT(*) as qtd FROM postagens WHERE fixado = 1').fetchone()['qtd']
         if fixados_count >= 3:
             flash('Limite atingido: Você só pode fixar 3 postagens no topo. Desfixe uma primeiro.')
@@ -642,11 +603,10 @@ def toggle_fixar(id):
 
 @app.route('/admin/promover/<int:user_id>', methods=['POST'])
 def promover_usuario(user_id):
-    # SÓ O ADMIN PODE DAR PODERES (Mods não podem promover outros)
     if session.get('user_funcao') != 'admin':
         return "Acesso negado", 403
 
-    novo_papel = request.form['papel'] # Recebe 'mod' ou 'cidadao' do formulário
+    novo_papel = request.form['papel'] 
     conn = get_db_connection()
     conn.execute('UPDATE usuarios SET funcao = ? WHERE id = ?', (novo_papel, user_id))
     conn.commit()
@@ -658,29 +618,24 @@ def promover_usuario(user_id):
 # --- SISTEMA DE UPVOTES (AJAX / FETCH) ---
 @app.route('/upvote/<int:post_id>', methods=['POST'])
 def upvote(post_id):
-    # Se não estiver logado, o Javascript vai avisar
     if 'user_id' not in session:
         return jsonify({'erro': 'Precisa fazer login para votar.'}), 401
         
     user_id = session['user_id']
     conn = get_db_connection()
     
-    # Verifica se já votou
     voto_existente = conn.execute('SELECT * FROM postagens_upvotes WHERE usuario_id = ? AND postagem_id = ?', (user_id, post_id)).fetchone()
     
     if voto_existente:
-        # Se já votou, REMOVE o voto (o usuário clicou de novo para tirar)
         conn.execute('DELETE FROM postagens_upvotes WHERE usuario_id = ? AND postagem_id = ?', (user_id, post_id))
         conn.execute('UPDATE postagens SET upvotes = upvotes - 1 WHERE id = ?', (post_id,))
         acao = 'removido'
     else:
-        # Se não votou, ADICIONA o voto
         conn.execute('INSERT INTO postagens_upvotes (usuario_id, postagem_id) VALUES (?, ?)', (user_id, post_id))
         conn.execute('UPDATE postagens SET upvotes = upvotes + 1 WHERE id = ?', (post_id,))
         acao = 'adicionado'
         
     conn.commit()
-    # Pega o novo número total de votos para o Javascript atualizar na tela
     novo_total = conn.execute('SELECT upvotes FROM postagens WHERE id = ?', (post_id,)).fetchone()['upvotes']
     conn.close()
     
@@ -697,7 +652,6 @@ def deletar_avaliacao(id):
     av = conn.execute('SELECT * FROM avaliacoes WHERE id = ?', (id,)).fetchone()
 
     if av:
-        # Regra de Ouro: Pode apagar se for o Autor OU se for Admin/Mod
         if session['user_id'] == av['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
             conn.execute('DELETE FROM avaliacoes WHERE id = ?', (id,))
             conn.commit()
@@ -714,7 +668,6 @@ def editar_avaliacao(id):
     conn = get_db_connection()
     av = conn.execute('SELECT * FROM avaliacoes WHERE id = ?', (id,)).fetchone()
 
-    # Regra de Ouro: APENAS o Autor pode editar sua própria avaliação
     if not av or session['user_id'] != av['usuario_id']:
         conn.close()
         flash('Acesso negado. Você só pode editar suas próprias avaliações.')
@@ -730,7 +683,6 @@ def editar_avaliacao(id):
         flash('Sua avaliação foi atualizada!')
         return redirect(url_for('detalhes_local', id=av['diretorio_id']))
 
-    # Busca o nome do local para mostrar na tela de edição
     local = conn.execute('SELECT nome FROM diretorio WHERE id = ?', (av['diretorio_id'],)).fetchone()
     conn.close()
     
@@ -747,11 +699,8 @@ def deletar_postagem(id):
     post = conn.execute('SELECT * FROM postagens WHERE id = ?', (id,)).fetchone()
 
     if post:
-        # Regra: Pode apagar se for o Autor OU se for Admin/Mod
         if session['user_id'] == post['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
-            # 1. Apaga os votos vinculados a este post (proteção do banco)
             conn.execute('DELETE FROM postagens_upvotes WHERE postagem_id = ?', (id,))
-            # 2. Apaga o post
             conn.execute('DELETE FROM postagens WHERE id = ?', (id,))
             conn.commit()
             flash('Publicação excluída com sucesso.')
@@ -767,7 +716,6 @@ def editar_postagem(id):
     conn = get_db_connection()
     post = conn.execute('SELECT * FROM postagens WHERE id = ?', (id,)).fetchone()
 
-    # Regra: APENAS o Autor pode editar sua própria postagem
     if not post or session['user_id'] != post['usuario_id']:
         conn.close()
         flash('Acesso negado. Você só pode editar suas próprias publicações.')
@@ -799,20 +747,19 @@ def deletar_anuncio(id):
     anuncio = conn.execute('SELECT * FROM marketplace WHERE id = ?', (id,)).fetchone()
 
     if anuncio:
-        # Regra: Pode apagar se for o Autor OU se for Admin/Mod
         if session['user_id'] == anuncio['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']:
-            
-            # (Opcional) Tenta apagar a foto da pasta para economizar espaço no servidor
             import os
-            if anuncio['imagem'] and anuncio['imagem'] != 'default_produto.jpg':
+            # Tenta apagar imagens antigas (se existirem e não forem a default)
+            for img_col in ['imagem', 'imagem1', 'imagem2']:
                 try:
-                    caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'produtos', anuncio['imagem'])
-                    if os.path.exists(caminho):
-                        os.remove(caminho)
-                except:
+                    img_name = anuncio.get(img_col)
+                    if img_name and img_name != 'default_produto.jpg':
+                        caminho = os.path.join(app.config['UPLOAD_FOLDER'], 'marketplace', img_name)
+                        if os.path.exists(caminho):
+                            os.remove(caminho)
+                except Exception:
                     pass
             
-            # Apaga do banco
             conn.execute('DELETE FROM marketplace WHERE id = ?', (id,))
             conn.commit()
             flash('Anúncio excluído com sucesso.')
@@ -828,7 +775,6 @@ def editar_anuncio(id):
     conn = get_db_connection()
     anuncio = conn.execute('SELECT * FROM marketplace WHERE id = ?', (id,)).fetchone()
 
-    # Regra: APENAS o Autor pode editar seu próprio anúncio
     if not anuncio or session['user_id'] != anuncio['usuario_id']:
         conn.close()
         flash('Acesso negado. Você só pode editar seus próprios anúncios.')
@@ -841,27 +787,13 @@ def editar_anuncio(id):
         categoria = request.form['categoria']
         contato = request.form['contato']
         
-        # Lógica para atualizar a imagem, se o usuário enviou uma nova
-        arquivo = request.files.get('imagem')
+        # Opcional: Aqui poderíamos expandir no futuro para editar as fotos também!
         
-        if arquivo and arquivo.filename != '':
-            nome_seguro = secure_filename(arquivo.filename)
-            import random
-            nome_final = f"prod_{random.randint(1000, 9999)}_{nome_seguro}"
-            arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], 'produtos', nome_final))
-            
-            conn.execute('''
-                UPDATE marketplace 
-                SET titulo=?, descricao=?, preco=?, categoria=?, contato=?, imagem=? 
-                WHERE id=?
-            ''', (titulo, descricao, preco, categoria, contato, nome_final, id))
-        else:
-            # Salva sem alterar a foto atual
-            conn.execute('''
-                UPDATE marketplace 
-                SET titulo=?, descricao=?, preco=?, categoria=?, contato=? 
-                WHERE id=?
-            ''', (titulo, descricao, preco, categoria, contato, id))
+        conn.execute('''
+            UPDATE marketplace 
+            SET titulo=?, descricao=?, preco=?, categoria=?, contato=? 
+            WHERE id=?
+        ''', (titulo, descricao, preco, categoria, contato, id))
             
         conn.commit()
         conn.close()
@@ -883,24 +815,20 @@ def perfil(id):
         flash('Usuário não encontrado.')
         return redirect(url_for('feed'))
         
-    # Se o usuário submeteu o formulário para Mudar Nome ou Postar Foto
     if request.method == 'POST':
-        # Proteção extra: Só o dono do perfil pode fazer alterações aqui
         if session.get('user_id') != id:
             flash('Acesso negado. Você não pode alterar o perfil de outra pessoa.')
             return redirect(url_for('perfil', id=id))
             
         acao = request.form.get('acao')
         
-        # 1. Altera o Nome
         if acao == 'atualizar_nome':
             novo_nome = request.form.get('nome')
             conn.execute('UPDATE usuarios SET nome = ? WHERE id = ?', (novo_nome, id))
             conn.commit()
-            session['user_nome'] = novo_nome # Atualiza na tela do usuário
+            session['user_nome'] = novo_nome 
             flash('Seu nome foi atualizado com sucesso!')
             
-        # 2. Adiciona foto no Memorial
         elif acao == 'nova_foto':
             titulo = request.form.get('titulo')
             arquivo = request.files.get('imagem')
@@ -921,7 +849,6 @@ def perfil(id):
                 
         return redirect(url_for('perfil', id=id))
 
-    # Carrega as fotos do memorial
     fotos = conn.execute('SELECT * FROM galeria_usuarios WHERE usuario_id = ? ORDER BY data_criacao DESC', (id,)).fetchall()
     conn.close()
     
@@ -935,7 +862,6 @@ def deletar_foto_memorial(id):
     conn = get_db_connection()
     foto = conn.execute('SELECT * FROM galeria_usuarios WHERE id = ?', (id,)).fetchone()
     
-    # Regra de Moderação: Dono ou Admin/Mod apagam
     if foto and (session['user_id'] == foto['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']):
         import os
         try:
@@ -949,7 +875,6 @@ def deletar_foto_memorial(id):
         flash('Foto removida do memorial.')
         
     conn.close()
-    # request.referrer faz o usuário voltar exatamente para a página de onde clicou
     return redirect(request.referrer or url_for('feed'))
 
 if __name__ == '__main__':

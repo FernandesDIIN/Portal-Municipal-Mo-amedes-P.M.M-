@@ -25,9 +25,20 @@
         {% for item in itens %}
             <div class="directory-card">
                 
-                <div class="card-image" style="background-image: url('{{ url_for('static', filename='uploads/capas/' + item.imagem_capa) }}');">
+                <div class="card-image" style="background-image: url('{{ url_for('static', filename='uploads/capas/' + item.imagem_capa) }}'); position: relative;">
 
                     <span class="category-badge {{ item.categoria }}">{{ item.categoria }}</span>
+                    
+                    <div style="position: absolute; top: 10px; right: 10px; background: #fbbf24; color: white; padding: 5px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px); z-index: 2;">
+                        <i class="fas fa-star" style="color: #fefefe;"></i>
+                        {% if item.media_estrelas %}
+                            {{ "%.1f"|format(item.media_estrelas) }} 
+                            <span style="font-size: 0.75rem; font-weight: normal; color: #ffffff;">({{ item.total_avaliacoes }})</span>
+                        {% else %}
+                            Novo
+                        {% endif %}
+                    </div>
+
                 </div>
 
                 <div class="card-content">
