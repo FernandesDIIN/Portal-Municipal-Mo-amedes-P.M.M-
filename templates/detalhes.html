@@ -54,12 +54,18 @@
             
             <div class="galeria-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 {% for foto in fotos %}
-                    <div style="position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="{% if loop.index0 > 3 %}foto-extra-dir{% endif %}" style="position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); {% if loop.index0 > 3 %}display: none;{% endif %}">
                         
-                        <img src="{{ url_for('static', filename='uploads/galeria/' + foto.nome_imagem) }}" class="foto-galeria lightbox-trigger" alt="Foto da Galeria" style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: zoom-in;">
+                        <img src="{{ url_for('static', filename='uploads/galeria/' + foto.nome_imagem) }}" class="foto-galeria lightbox-trigger" alt="{{ foto.titulo }}" style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: zoom-in;">
                         
+                        {% if foto.titulo %}
+                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.75); color: white; padding: 8px; font-size: 0.85rem; font-weight: bold; text-align: center; backdrop-filter: blur(2px); pointer-events: none;">
+                            {{ foto.titulo }}
+                        </div>
+                        {% endif %}
+
                         {% if session.get('user_funcao') in ['admin', 'mod'] %}
-                        <form action="/deletar_foto_diretorio/{{ foto.id }}" method="POST" style="position: absolute; top: 10px; right: 10px; margin: 0;">
+                        <form action="/deletar_foto_diretorio/{{ foto.id }}" method="POST" style="position: absolute; top: 10px; right: 10px; margin: 0; z-index: 10;">
                             <button type="submit" style="background: #ef4444; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.4);" title="Apagar foto" onclick="return confirm('Deseja apagar esta foto do diretório?');">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
@@ -71,10 +77,25 @@
                 {% endfor %}
             </div>
 
+            {% if fotos|length > 4 %}
+            <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+                
+                <button id="btn-mais-dir" onclick="document.querySelectorAll('.foto-extra-dir').forEach(el => el.style.display='block'); this.style.display='none'; document.getElementById('btn-menos-dir').style.display='inline-block';" style="background: transparent; color: #2563eb; border: 2px solid #2563eb; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                    <i class="fas fa-images"></i> Ver todas as {{ fotos|length }} fotos
+                </button>
+
+                <button id="btn-menos-dir" onclick="document.querySelectorAll('.foto-extra-dir').forEach(el => el.style.display='none'); this.style.display='none'; document.getElementById('btn-mais-dir').style.display='inline-block';" style="display: none; background: transparent; color: #64748b; border: 2px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                    <i class="fas fa-compress-arrows-alt"></i> Ver menos
+                </button>
+
+            </div>
+            {% endif %}
+
             {% if session.get('user_funcao') == 'admin' %}
-            <div class="admin-upload-box">
+            <div class="admin-upload-box" style="margin-top: 20px;">
                 <h4><i class="fas fa-upload"></i> Adicionar Foto (Painel Admin Oculto)</h4>
                 <form action="/upload_galeria/{{ item.id }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" name="titulo" placeholder="Título breve (Opcional)" style="flex: 1; min-width: 150px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 4px;">
                     <input type="file" name="imagem_galeria" accept="image/*" required style="flex: 1; border: 1px solid #cbd5e1; padding: 5px; border-radius: 4px; background: white;">
                     <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">
                         Enviar Foto
@@ -119,9 +140,18 @@
             <div class="reviews-list">
                 {% for av in avaliacoes %}
                 <div class="review-card">
-                    <div class="review-card-header">
-                        <div style="font-weight: bold; color: #334155;"><i class="fas fa-user-circle"></i> {{ av.autor_nome }}</div>
-                        <div style="color: #fbbf24;">
+                    <div class="review-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        
+                        <div style="font-weight: bold; color: #334155;">
+                            <a href="/perfil/{{ av.usuario_id }}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#334155'">
+                                <div style="width: 32px; height: 32px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">
+                                    {{ av.autor_nome[:2] }}
+                                </div>
+                                {{ av.autor_nome }}
+                            </a>
+                        </div>
+                        
+                        <div style="color: #fbbf24; font-size: 0.9rem;">
                             {% for i in range(av.nota) %}★{% endfor %}
                             <span style="color: #cbd5e1;">{% for i in range(5 - av.nota) %}★{% endfor %}</span>
                         </div>

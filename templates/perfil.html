@@ -60,30 +60,45 @@
         </div>
         {% endif %}
 
-        <div class="memorial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%;">
-            {% for foto in fotos %}
-                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; position: relative; max-width: 100%;">
-                    <img src="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" class="lightbox-trigger" style="width: 100%; max-width: 100%; height: 200px; object-fit: cover; display: block; transition: transform 0.3s;" alt="{{ foto.titulo }}">
-                    <div style="padding: 15px;">
-                        <p style="margin: 0; font-weight: bold; color: #334155;">{{ foto.titulo }}</p>
-                        <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #94a3b8;">{{ foto.data_criacao[:10] }}</p>
-                    </div>
+        <div class="memorial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    {% for foto in fotos %}
+                        
+                        <div class="{% if loop.index0 > 3 %}foto-extra-perf{% endif %}" style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); {% if loop.index0 > 3 %}display: none;{% endif %}">
+                            
+                            <img src="{{ url_for('static', filename='uploads/galeria_usuarios/' + foto.nome_imagem) }}" class="lightbox-trigger" style="width: 100%; height: 200px; object-fit: cover; display: block; cursor: zoom-in;" alt="{{ foto.titulo }}">
+                            
+                            {% if foto.titulo %}
+                            <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.75); color: white; padding: 8px; text-align: center; font-size: 0.85rem; font-weight: bold; backdrop-filter: blur(2px); pointer-events: none;">
+                                {{ foto.titulo }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if session.get('user_id') == usuario.id or session.get('user_funcao') in ['admin', 'mod'] %}
+                            <form action="/deletar_foto_memorial/{{ foto.id }}" method="POST" style="position: absolute; top: 5px; right: 5px; margin: 0; z-index: 10;">
+                                <button type="submit" style="background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;" onclick="return confirm('Deseja excluir esta foto?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p style="color: #64748b; font-style: italic;">Nenhuma foto no memorial ainda.</p>
+                    {% endfor %}
+                </div>
 
-                    {% if session.get('user_id') == usuario.id or session.get('user_funcao') in ['admin', 'mod'] %}
-                    <form action="/deletar_foto_memorial/{{ foto.id }}" method="POST" style="position: absolute; top: 10px; right: 10px; margin: 0;">
-                        <button type="submit" style="background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Apagar foto" onclick="return confirm('Deseja apagar esta foto do memorial?');">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </form>
-                    {% endif %}
+                {% if fotos|length > 4 %}
+                <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+                    
+                    <button id="btn-mais-perf" onclick="document.querySelectorAll('.foto-extra-perf').forEach(el => el.style.display='block'); this.style.display='none'; document.getElementById('btn-menos-perf').style.display='inline-block';" style="background: transparent; color: #16a34a; border: 2px solid #16a34a; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                        <i class="fas fa-images"></i> Ver todas as {{ fotos|length }} fotos
+                    </button>
+
+                    <button id="btn-menos-perf" onclick="document.querySelectorAll('.foto-extra-perf').forEach(el => el.style.display='none'); this.style.display='none'; document.getElementById('btn-mais-perf').style.display='inline-block';" style="display: none; background: transparent; color: #64748b; border: 2px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                        <i class="fas fa-compress-arrows-alt"></i> Ver menos
+                    </button>
+
                 </div>
-            {% else %}
-                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                    <i class="fas fa-camera-retro" style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px;"></i>
-                    <p style="color: #64748b; margin: 0;">Nenhuma foto neste memorial ainda.</p>
-                </div>
-            {% endfor %}
-        </div>
+                {% endif %}
     </div>
 </div>
 {% endblock %}

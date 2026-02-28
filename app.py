@@ -28,6 +28,53 @@ def home():
     conn.close()
     return render_template('index.html', noticias=noticias, locais=locais)
 
+@app.route('/criar_postagem', methods=['GET', 'POST'])
+def criar_postagem():
+    if 'user_id' not in session:
+        flash('Você precisa fazer login para publicar no Feed da Comunidade.')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        conteudo = request.form['conteudo']
+        categoria = request.form['categoria']
+        
+        # --- LÓGICA DE UPLOAD DE FOTOS ---
+        imagem1 = request.files.get('imagem1')
+        imagem2 = request.files.get('imagem2')
+        
+        nome_img1 = None
+        nome_img2 = None
+        import random
+        
+        # Cria a pasta para as fotos do feed se não existir
+        pasta_feed = os.path.join(app.config['UPLOAD_FOLDER'], 'feed_imagens')
+        os.makedirs(pasta_feed, exist_ok=True)
+
+        if imagem1 and imagem1.filename != '':
+            nome_seguro = secure_filename(imagem1.filename)
+            nome_img1 = f"feed_1_{random.randint(1000, 9999)}_{nome_seguro}"
+            imagem1.save(os.path.join(pasta_feed, nome_img1))
+
+        if imagem2 and imagem2.filename != '':
+            nome_seguro = secure_filename(imagem2.filename)
+            nome_img2 = f"feed_2_{random.randint(1000, 9999)}_{nome_seguro}"
+            imagem2.save(os.path.join(pasta_feed, nome_img2))
+        
+        # Guarda no banco
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO postagens (titulo, conteudo, categoria, usuario_id, imagem1, imagem2)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (titulo, conteudo, categoria, session['user_id'], nome_img1, nome_img2))
+        conn.commit()
+        conn.close()
+        
+        flash('Publicação enviada com sucesso para o Feed!')
+        return redirect(url_for('feed'))
+
+    return render_template('criar_postagem.html')
+    
 @app.route('/feed')
 def feed():
     conn = get_db_connection()
@@ -162,7 +209,9 @@ def upload_galeria(id):
     if session.get('user_funcao') != 'admin':
         return "Acesso negado", 403
 
+    titulo = request.form.get('titulo', '') # NOVO: Pega o título opcional
     arquivo = request.files.get('imagem_galeria')
+    
     if arquivo and arquivo.filename != '':
         nome_seguro = secure_filename(arquivo.filename)
         import random
@@ -174,7 +223,8 @@ def upload_galeria(id):
         arquivo.save(os.path.join(pasta_galeria, nome_final))
         
         conn = get_db_connection()
-        conn.execute('INSERT INTO galeria_diretorio (diretorio_id, nome_imagem) VALUES (?, ?)', (id, nome_final))
+        # NOVO: Salva o título junto com o nome da imagem
+        conn.execute('INSERT INTO galeria_diretorio (diretorio_id, nome_imagem, titulo) VALUES (?, ?, ?)', (id, nome_final, titulo))
         conn.commit()
         conn.close()
         
