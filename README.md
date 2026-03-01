@@ -1,6 +1,6 @@
 # 🇦🇴 Portal Municipal
 
-O **Portal Mucicipal Moçâmedes** é uma plataforma web desenvolvida como Trabalho de Conclusão de Curso (TCC). O objetivo do projeto é atuar como um *hub* centralizado digital para o município de Moçâmedes (província do Namibe, Angola), conectando cidadãos, turistas e comércio local em um único espaço interativo.
+O **Portal Mucicipal Moçâmedes** é uma plataforma web desenvolvida como Projeto de Aptitidão Profissional (PAP). O objetivo do projeto é atuar como um *hub* centralizado digital para o município de Moçâmedes (província do Namibe, Angola), conectando cidadãos, turistas e comércio local em um único espaço interativo.
 
 ## 🚀 Principais Funcionalidades
 
