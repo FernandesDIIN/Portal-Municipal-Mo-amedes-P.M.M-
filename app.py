@@ -456,12 +456,33 @@ def admin():
             conn.commit()
             flash('Local adicionado com foto!')
 
+    # =========================================================
+    # 3. LÓGICA DE BUSCA E LISTAGEM (BUSCA INTELIGENTE)
+    # =========================================================
+    
+    # Busca de Usuários
     busca_user = request.args.get('q_user', '').strip()
+    
     if busca_user:
-        sql_users = 'SELECT * FROM usuarios WHERE email LIKE ? OR telefone LIKE ? OR nome LIKE ? OR CAST(id AS TEXT) = ? ORDER BY nome'
-        termo_user = f'%{busca_user}%'
-        params_users = [termo_user, termo_user, termo_user, busca_user]
+        # 1. Se usar a hashtag (Ex: "#15"), força a busca EXATA pelo ID
+        if busca_user.startswith('#'):
+            id_limpo = busca_user.replace('#', '')
+            sql_users = 'SELECT * FROM usuarios WHERE id = ?'
+            params_users = [id_limpo]
+            
+        # 2. Se digitar apenas números pequenos (até 4 dígitos, Ex: "1", "25"), assume que é ID EXATO
+        elif busca_user.isdigit() and len(busca_user) <= 4:
+            sql_users = 'SELECT * FROM usuarios WHERE id = ?'
+            params_users = [int(busca_user)]
+            
+        # 3. Se for texto ou um número longo (telefone), busca por Nome, Email ou Telefone
+        else:
+            sql_users = 'SELECT * FROM usuarios WHERE nome LIKE ? OR email LIKE ? OR telefone LIKE ? ORDER BY nome'
+            termo_user = f'%{busca_user}%'
+            params_users = [termo_user, termo_user, termo_user]
+            
     else:
+        # Se NÃO tem busca: Mostra apenas os 3 mais recentes cadastrados
         sql_users = 'SELECT * FROM usuarios ORDER BY id DESC LIMIT 3'
         params_users = []
         

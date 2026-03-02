@@ -3,8 +3,8 @@
 {% block content %}
 <div class="details-container">
     
-    <a href="{{ url_for('diretorio') }}" class="btn-back">
-        <i class="fas fa-arrow-left"></i> Voltar ao Diretório
+    <a href="{{ request.referrer or '/diretorio' }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Voltar
     </a>
 
     <div class="details-hero" style="background-image: url('{{ url_for('static', filename='uploads/capas/' + item.imagem_capa) }}');">

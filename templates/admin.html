@@ -18,37 +18,6 @@
         {% endif %}
     {% endwith %}
 
-    <div class="admin-grid">
-        
-        <div class="admin-card">
-            <h3><i class="fas fa-newspaper"></i> Nova Postagem</h3>
-            <form method="POST" action="/admin">
-                <input type="hidden" name="acao" value="nova_postagem">
-                
-                <div class="form-group">
-                    <label>Título</label>
-                    <input type="text" name="titulo" required placeholder="Ex: Campanha de Vacinação">
-                </div>
-                
-                <div class="form-group">
-                    <label>Categoria</label>
-                    <select name="categoria" class="form-select">
-                        <option value="Notícia">Notícia</option>
-                        <option value="Utilidade Pública">Utilidade Pública</option>
-                        <option value="Evento">Evento</option>
-                        <option value="Esporte">Esporte</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Conteúdo</label>
-                    <textarea name="conteudo" rows="4" class="form-textarea" required></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">Publicar</button>
-            </form>
-        </div>
-
         <div class="admin-card" style="grid-column: span 2;">
             <h3><i class="fas fa-map-marker-alt"></i> Adicionar Local/Serviço</h3>
             <p style="color: #666; font-size: 0.9rem;">Preencha os detalhes completos para a página de turismo/serviços.</p>
