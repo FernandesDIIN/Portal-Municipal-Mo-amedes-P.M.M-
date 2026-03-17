@@ -61,14 +61,12 @@
         let indiceAtual = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Procura todas as imagens da página que têm a classe 'lightbox-trigger'
             const imagens = document.querySelectorAll('.lightbox-trigger');
             
             imagens.forEach((img, index) => {
-                img.style.cursor = 'zoom-in'; // Muda o rato para uma lupa
-                galeriaImagens.push(img.src); // Guarda as URLs para as setinhas saberem a ordem
+                img.style.cursor = 'zoom-in';
+                galeriaImagens.push(img.src);
                 
-                // Quando clicar na foto, abre o fundo borrado
                 img.addEventListener('click', (e) => {
                     e.preventDefault();
                     abrirLightbox(index);
@@ -81,25 +79,22 @@
             indiceAtual = index;
             document.getElementById('lightbox-img').src = galeriaImagens[indiceAtual];
             document.getElementById('lightbox').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Impede a página de rolar para baixo
+            document.body.style.overflow = 'hidden';
         }
 
         function fecharLightbox() {
             document.getElementById('lightbox').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Devolve o scroll normal
+            document.body.style.overflow = 'auto';
         }
 
         function mudarFoto(direcao) {
             indiceAtual += direcao;
-            // Se passar da última foto, volta para a primeira (Loop)
             if (indiceAtual >= galeriaImagens.length) indiceAtual = 0;
-            // Se voltar antes da primeira, vai para a última (Loop)
             if (indiceAtual < 0) indiceAtual = galeriaImagens.length - 1;
             
             document.getElementById('lightbox-img').src = galeriaImagens[indiceAtual];
         }
 
-        // Bônus de Qualidade: Fechar com a tecla ESC ou mudar com as setas do teclado!
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('lightbox').style.display === 'flex') {
                 if (e.key === "Escape") fecharLightbox();

@@ -18,8 +18,8 @@
 
             <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <div class="form-group" style="flex: 1;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Preço (Kz)</label>
-                    <input type="text" name="preco" value="{{ anuncio.preco }}" placeholder="Ex: 15000 ou Grátis" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Preço</label>
+                    <input type="text" id="preco" name="preco" value="{{ anuncio.preco }}" onkeyup="formatarMoeda(this)" placeholder="Ex: 50.000 Kz" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
                 </div>
                 
                 <div class="form-group" style="flex: 1;">
@@ -34,6 +34,28 @@
                 </div>
             </div>
 
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Tipo de Anúncio</label>
+                    <select name="tipo_anuncio" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                        <option value="oferta" {% if anuncio.tipo_anuncio == 'oferta' %}selected{% endif %}>Vendo / Ofereço</option>
+                        <option value="procura" {% if anuncio.tipo_anuncio == 'procura' %}selected{% endif %}>Compro / Procuro</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="flex: 1;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Status do Serviço</label>
+                    <select name="status" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; background: white;">
+                        <option value="ativo" {% if anuncio.status == 'ativo' %}selected{% endif %}>Disponível / À Venda</option>
+                        <option value="vendido" {% if anuncio.status == 'vendido' %}selected{% endif %}>Produto Vendido</option>
+                        <option value="ocupado" {% if anuncio.status == 'ocupado' %}selected{% endif %}>Serviço Ocupado</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: #f59e0b; margin-top: 5px; margin-bottom: 0;">
+                        <i class="fas fa-lightbulb"></i> <b>Dica:</b> Mude para Vendido/Ocupado para pararem de lhe ligar!
+                    </p>
+                </div>
+            </div>
+
             <div class="form-group full-width" style="margin-top: 15px;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">Telefone / Contato</label>
                 <input type="text" name="contato" value="{{ anuncio.contato }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
@@ -44,10 +66,18 @@
                 <textarea name="descricao" rows="4" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">{{ anuncio.descricao }}</textarea>
             </div>
 
-            <div class="form-group full-width" style="margin-top: 15px; background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #475569;"><i class="fas fa-camera"></i> Atualizar Foto (Opcional)</label>
-                <p style="font-size: 0.8rem; color: #64748b; margin-top: 0;">Deixe em branco para manter a foto atual.</p>
-                <input type="file" name="imagem" accept="image/*" style="width: 100%;">
+            <div style="margin-top: 15px; background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #475569;"><i class="fas fa-camera"></i> Alterar Foto 1</label>
+                        <input type="file" name="imagem1" accept="image/*" style="width: 100%; font-size: 0.85rem;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #475569;"><i class="fas fa-camera"></i> Alterar Foto 2</label>
+                        <input type="file" name="imagem2" accept="image/*" style="width: 100%; font-size: 0.85rem;">
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 10px; margin-bottom: 0;">Deixe em branco para manter as fotos atuais.</p>
             </div>
 
             <button type="submit" class="btn-submit full-width" style="background-color: #2563eb; font-size: 1.1rem; width: 100%; margin-top: 20px;">
@@ -56,4 +86,13 @@
         </form>
     </div>
 </div>
+
+<script>
+function formatarMoeda(input) {
+    let valor = input.value.replace(/\D/g, '');
+    if (valor === '') { input.value = ''; return; }
+    valor = parseInt(valor, 10).toLocaleString('pt-AO');
+    input.value = valor + ' Kz';
+}
+</script>
 {% endblock %}

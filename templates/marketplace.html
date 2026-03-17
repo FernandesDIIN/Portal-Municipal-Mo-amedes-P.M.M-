@@ -29,9 +29,11 @@
         </div>
     </div>
 
-    <div class="market-grid">
+    <div class="market-grid" style="align-items: start;">
         {% for item in anuncios %}
-            <div class="market-card {{ item.tipo_anuncio }}">
+            
+            <div class="market-card {{ item.tipo_anuncio }} {% if item.status == 'vendido' or item.status == 'ocupado' %}card-vendido{% endif %}" style="position: relative;">
+                
                 <div class="card-top">
                     <span class="badge-tipo">
                         {% if item.tipo_anuncio == 'oferta' %}
@@ -49,16 +51,26 @@
                     <div class="price">{{ item.preco }}</div>
                 {% endif %}
 
+                {% if item.status == 'vendido' %}
+                    <div style="display: inline-block; background: #fee2e2; color: #ef4444; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 10px; border: 1px solid #fca5a5;">
+                        <i class="fas fa-tag"></i> Produto Vendido
+                    </div>
+                {% elif item.status == 'ocupado' %}
+                    <div style="display: inline-block; background: #ffedd5; color: #ea580c; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-bottom: 10px; border: 1px solid #fdba74;">
+                        <i class="fas fa-clock"></i> Serviço Ocupado
+                    </div>
+                {% endif %}
+
                 <p class="desc">{{ item.descricao }}</p>
 
                 {% if item.imagem1 or item.imagem2 %}
                 <div style="display: flex; gap: 10px; margin: 15px 0;">
                     {% if item.imagem1 %}
-                        <img src="{{ url_for('static', filename='uploads/marketplace/' + item.imagem1) }}" class="lightbox-trigger" style="flex: 1; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; cursor: zoom-in;" alt="Foto 1 do anúncio">
+                        <img src="{{ url_for('static', filename='uploads/marketplace/' + item.imagem1) }}" class="lightbox-trigger" style="max-width: calc(50% - 5px); height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; cursor: zoom-in;" alt="Foto 1 do anúncio">
                     {% endif %}
                     
                     {% if item.imagem2 %}
-                        <img src="{{ url_for('static', filename='uploads/marketplace/' + item.imagem2) }}" class="lightbox-trigger" style="flex: 1; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; cursor: zoom-in;" alt="Foto 2 do anúncio">
+                        <img src="{{ url_for('static', filename='uploads/marketplace/' + item.imagem2) }}" class="lightbox-trigger" style="max-width: calc(50% - 5px); height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; cursor: zoom-in;" alt="Foto 2 do anúncio">
                     {% endif %}
                 </div>
                 {% endif %}
@@ -81,29 +93,42 @@
 
                 <div class="contact-area-new">
                     <p class="contact-label">Contacto:</p>
-                    <div class="contact-number">{{ item.contato }}</div>
+                    <div class="contact-number {% if item.status in ['vendido', 'ocupado'] %}text-riscado{% endif %}">
+                        {{ item.contato }}
+                    </div>
                     
-                    <a href="tel:{{ item.contato | replace(' ', '') }}" class="btn-contact-new">
-                        <i class="fas fa-phone"></i> Entrar em contacto
-                    </a>
+                    {% if item.status in ['vendido', 'ocupado'] %}
+                        <button class="btn-indisponivel" disabled>
+                            <i class="fas fa-ban"></i> Indisponível
+                        </button>
+                    {% else %}
+                        <a href="tel:{{ item.contato | replace(' ', '') }}" class="btn-contact-new">
+                            <i class="fas fa-phone"></i> Entrar em contacto
+                        </a>
+                    {% endif %}
                 </div>
 
                 {% if 'user_id' in session and (session['user_id'] == item.usuario_id or session.get('user_funcao') in ['admin', 'mod']) %}
-                <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
                     
-                    {% if session['user_id'] == item.usuario_id %}
-                    <a href="/editar_anuncio/{{ item.id }}" style="color: #2563eb; font-size: 0.85rem; text-decoration: none; font-weight: bold; padding: 5px 10px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 4px; transition: 0.2s; flex: 1; text-align: center;">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
+                    {% if session['user_id'] == item.usuario_id and item.status == 'ativo' %}
+                    <div style="background: #eff6ff; color: #1e3a8a; padding: 10px; border-radius: 6px; font-size: 0.8rem; margin-top: 15px; border: 1px solid #bfdbfe; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Já fechou negócio? Clique em <b>Editar</b> abaixo para marcar como Concluído.
+                    </div>
                     {% endif %}
-                    
-                    <form action="/deletar_anuncio/{{ item.id }}" method="POST" style="margin: 0; flex: 1;">
-                        <button type="submit" style="color: #ef4444; cursor: pointer; font-size: 0.85rem; font-weight: bold; padding: 5px 10px; border: 1px solid #fecaca; background: #fef2f2; border-radius: 4px; transition: 0.2s; width: 100%;" onclick="return confirm('Tem certeza que deseja apagar este anúncio definitivamente?');">
-                            <i class="fas fa-trash-alt"></i> Excluir
-                        </button>
-                    </form>
-                    
-                </div>
+
+                    <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                        {% if session['user_id'] == item.usuario_id %}
+                        <a href="/editar_anuncio/{{ item.id }}" style="color: #2563eb; font-size: 0.85rem; text-decoration: none; font-weight: bold; padding: 5px 10px; border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 4px; transition: 0.2s; flex: 1; text-align: center; min-width: 80px;">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        {% endif %}
+                        
+                        <form action="/deletar_anuncio/{{ item.id }}" method="POST" style="margin: 0; flex: 1; min-width: 80px;">
+                            <button type="submit" style="color: #ef4444; cursor: pointer; font-size: 0.85rem; font-weight: bold; padding: 5px 10px; border: 1px solid #fecaca; background: #fef2f2; border-radius: 4px; transition: 0.2s; width: 100%;" onclick="return confirm('Tem certeza que deseja apagar este anúncio definitivamente?');">
+                                <i class="fas fa-trash-alt"></i> Excluir
+                            </button>
+                        </form>
+                    </div>
                 {% endif %}
 
             </div>

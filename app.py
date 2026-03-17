@@ -838,6 +838,26 @@ def deletar_anuncio(id):
     conn.close()
     return redirect(url_for('marketplace'))
 
+@app.route('/toggle_status_anuncio/<int:id>', methods=['POST'])
+def toggle_status_anuncio(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    anuncio = conn.execute('SELECT * FROM marketplace WHERE id = ?', (id,)).fetchone()
+
+    # Só o dono (ou admin) pode mudar o status
+    if anuncio and (session['user_id'] == anuncio['usuario_id'] or session.get('user_funcao') in ['admin', 'mod']):
+        # Se estiver vendido, volta a ficar ativo. Se não, fica vendido.
+        novo_status = 'vendido' if anuncio.get('status') != 'vendido' else 'ativo'
+        
+        conn.execute('UPDATE marketplace SET status = ? WHERE id = ?', (novo_status, id))
+        conn.commit()
+        flash(f'Anúncio marcado como: {"Vendido" if novo_status == "vendido" else "Disponível"}')
+        
+    conn.close()
+    return redirect(url_for('marketplace'))
+
 @app.route('/editar_anuncio/<int:id>', methods=['GET', 'POST'])
 def editar_anuncio(id):
     if 'user_id' not in session:
@@ -854,21 +874,46 @@ def editar_anuncio(id):
     if request.method == 'POST':
         titulo = request.form['titulo']
         descricao = request.form['descricao']
-        preco = request.form['preco']
+        preco = request.form.get('preco', '')
         categoria = request.form['categoria']
         contato = request.form['contato']
+        tipo_anuncio = request.form['tipo_anuncio']
+        status = request.form.get('status', 'ativo')
+
+        conn = get_db_connection()
+        anuncio_atual = conn.execute('SELECT imagem1, imagem2 FROM marketplace WHERE id = ?', (id,)).fetchone()
         
-        # Opcional: Aqui poderíamos expandir no futuro para editar as fotos também!
+        # 1. Lógica para manter a foto antiga ou guardar a nova
+        imagem1 = anuncio_atual['imagem1']
+        imagem2 = anuncio_atual['imagem2']
         
+        import os
+        from werkzeug.utils import secure_filename
+        
+        # Se enviou a Foto 1 nova
+        foto1 = request.files.get('imagem1')
+        if foto1 and foto1.filename != '':
+            nome_foto1 = secure_filename(foto1.filename)
+            foto1.save(os.path.join('static/uploads/marketplace', nome_foto1))
+            imagem1 = nome_foto1
+            
+        # Se enviou a Foto 2 nova
+        foto2 = request.files.get('imagem2')
+        if foto2 and foto2.filename != '':
+            nome_foto2 = secure_filename(foto2.filename)
+            foto2.save(os.path.join('static/uploads/marketplace', nome_foto2))
+            imagem2 = nome_foto2
+
+        # 2. Atualiza tudo no banco de dados
         conn.execute('''
             UPDATE marketplace 
-            SET titulo=?, descricao=?, preco=?, categoria=?, contato=? 
-            WHERE id=?
-        ''', (titulo, descricao, preco, categoria, contato, id))
-            
+            SET titulo = ?, descricao = ?, preco = ?, categoria = ?, contato = ?, tipo_anuncio = ?, status = ?, imagem1 = ?, imagem2 = ?
+            WHERE id = ?
+        ''', (titulo, descricao, preco, categoria, contato, tipo_anuncio, status, imagem1, imagem2, id))
         conn.commit()
         conn.close()
-        flash('Seu anúncio foi atualizado!')
+
+        flash('Anúncio atualizado com sucesso!')
         return redirect(url_for('marketplace'))
 
     conn.close()

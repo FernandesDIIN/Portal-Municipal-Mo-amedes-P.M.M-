@@ -40,7 +40,7 @@
             <div style="display: flex; gap: 15px;">
                 <div class="form-group" style="flex: 1;">
                     <label>Preço (Opcional)</label>
-                    <input type="text" name="preco" placeholder="Ex: 50.000 Kz ou A combinar" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
+                    <input type="text" id="preco" name="preco" onkeyup="formatarMoeda(this)" placeholder="Ex: 50.000 Kz ou deixe em branco" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px;">
                 </div>
 
                 <div class="form-group" style="flex: 1;">
@@ -63,4 +63,24 @@
         </form>
     </div>
 </div>
+
+<script>
+function formatarMoeda(input) {
+    // 1. Remove tudo o que não for número (limpa letras e Kz antigos)
+    let valor = input.value.replace(/\D/g, '');
+    
+    // 2. Se o campo ficar vazio, não faz nada
+    if (valor === '') {
+        input.value = '';
+        return;
+    }
+    
+    // 3. Formata o número com o ponto de milhar (estilo Angola/PT)
+    valor = parseInt(valor, 10).toLocaleString('pt-AO');
+    
+    // 4. Devolve o valor formatado com o Kz no final
+    input.value = valor + ' Kz';
+}
+</script>
+
 {% endblock %}
