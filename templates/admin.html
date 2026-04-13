@@ -1,38 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="admin-container">
-    <div class="admin-header">
-        <h2>Painel de Gestão</h2>
-        <div class="user-info">
-            <span>Admin: <strong>{{ usuario }}</strong></span>
-            <a href="/logout" class="btn-logout">Sair</a>
-        </div>
-    </div>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="alert-success">
-                <i class="fas fa-check-circle"></i> {{ messages[0] }}
+<div class="admin-page-bg">
+    <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 0 15px;">
+        
+        <div class="admin-header-dark" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1>Painel de Administração</h1>
+                <p>Gerencie as instituições, locais e usuários do portal.</p>
             </div>
-        {% endif %}
-    {% endwith %}
+            <div style="text-align: right;">
+                <span style="color: #cbd5e1; font-size: 0.9rem; display: block; margin-bottom: 8px;">Logado como: <strong>{{ usuario }}</strong></span>
+                <a href="/logout" style="background: #ef4444; color: white; padding: 6px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85rem;"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
 
-        <div class="admin-card" style="grid-column: span 2;">
-            <h3><i class="fas fa-map-marker-alt"></i> Adicionar Local/Serviço</h3>
-            <p style="color: #666; font-size: 0.9rem;">Preencha os detalhes completos para a página de turismo/serviços.</p>
-
-            <form method="POST" action="/admin" enctype="multipart/form-data" class="form-grid">
+        <div class="admin-card-white">
+            <h2 class="admin-card-title"><i class="fas fa-plus-circle"></i> Cadastrar Novo Local</h2>
+            
+            <form method="POST" action="/admin" enctype="multipart/form-data" class="admin-form-grid">
                 <input type="hidden" name="acao" value="novo_item_diretorio">
                 
-                <div class="form-group">
-                    <label>Nome do Local</label>
-                    <input type="text" name="nome" required placeholder="Ex: Hospital Central">
+                <div>
+                    <label class="admin-label">Nome do Local</label>
+                    <input type="text" name="nome" class="admin-input-light" required placeholder="Ex: Hospital Central">
                 </div>
 
-                <div class="form-group">
-                    <label>Categoria Principal</label>
-                    <select name="categoria" class="form-select">
+                <div>
+                    <label class="admin-label">Categoria Principal</label>
+                    <select name="categoria" class="admin-input-light">
                         <option value="Saúde">Saúde</option>
                         <option value="Educação">Educação</option>
                         <option value="Comércio">Comércio e Hospedaria</option>
@@ -41,205 +37,208 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>Subcategoria</label>
-                    <input type="text" name="subcategoria" placeholder="Ex: Farmácia, Hotel...">
+                <div>
+                    <label class="admin-label">Subcategoria</label>
+                    <input type="text" name="subcategoria" class="admin-input-light" placeholder="Ex: Farmácia, Hotel...">
                 </div>
 
-                <div class="form-group">
-                    <label>Tipo de Gestão</label>
-                    <select name="tipo" class="form-select">
+                <div>
+                    <label class="admin-label">Tipo de Gestão</label>
+                    <select name="tipo" class="admin-input-light">
                         <option value="Publico">Público (Governo)</option>
                         <option value="Privado">Privado (Empresa)</option>
                         <option value="ONG">ONG</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" name="telefone" placeholder="+244...">
+                <div>
+                    <label class="admin-label">Telefone</label>
+                    <input type="text" name="telefone" class="admin-input-light" placeholder="+244...">
                 </div>
 
-                <div class="form-group">
-                    <label>Horário</label>
-                    <input type="text" name="horario" placeholder="Ex: 08h às 18h">
+                <div>
+                    <label class="admin-label">Horário</label>
+                    <input type="text" name="horario" class="admin-input-light" placeholder="Ex: 08h às 18h">
                 </div>
 
-                <div class="form-group full-width" style="background: #f8fafc; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 6px;">
-                    <label style="color: #475569;"><i class="fas fa-camera"></i> Foto de Capa (Fachada)</label>
-                    <input type="file" name="imagem" accept="image/*">
-                    <small style="color: #64748b; display: block; margin-top: 5px;">Recomendado: Imagem horizontal (JPG ou PNG).</small>
+                <div class="full-width" style="background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px; margin-bottom: 20px;">
+                    <label class="admin-label" style="margin-bottom: 5px;"><i class="fas fa-camera"></i> Foto de Capa (Fachada)</label>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 0; margin-bottom: 10px;">Recomendado: Imagem horizontal (JPG ou PNG).</p>
+                    <input type="file" name="imagem" accept="image/*" style="width: 100%; font-size: 0.9rem;">
                 </div>
 
-                <div class="form-group full-width">
-                    <label>Endereço Completo</label>
-                    <input type="text" name="endereco" placeholder="Rua...">
+                <div class="full-width">
+                    <label class="admin-label">Endereço Completo</label>
+                    <input type="text" name="endereco" class="admin-input-light" placeholder="Rua...">
                 </div>
 
-                <div class="form-group full-width">
-                    <label>Resumo</label>
-                    <input type="text" name="descricao" maxlength="100" placeholder="Frase curta...">
+                <div class="full-width">
+                    <label class="admin-label">Resumo (Frase Curta)</label>
+                    <input type="text" name="descricao" class="admin-input-light" maxlength="100" placeholder="Frase curta...">
                 </div>
 
-                <div class="form-group full-width">
-                    <label>História Completa</label>
-                    <textarea name="historia" rows="5" class="form-textarea"></textarea>
+                <div class="full-width">
+                    <label class="admin-label">História Completa</label>
+                    <textarea name="historia" rows="5" class="admin-input-light"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit full-width" style="background-color: #f59e0b;">Salvar no Diretório</button>
+                <div class="full-width">
+                    <button type="submit" class="admin-btn-blue"><i class="fas fa-save"></i> Salvar no Diretório</button>
+                </div>
             </form>
         </div>
 
-    </div>
-
-    <div class="management-section">
-        <hr style="margin: 40px 0; border-top: 2px solid #e2e8f0;">
-        <h2>Conteúdo Cadastrado</h2>
-
         {% if session.get('user_funcao') == 'admin' %}
-        <div class="table-container" style="margin-bottom: 40px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <h3 style="margin: 0;">Gestão de Usuários e Níveis</h3>
+        <div class="admin-card-white">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <h2 class="admin-card-title" style="margin: 0;"><i class="fas fa-users" style="color: #64748b;"></i> Gestão de Usuários</h2>
                 
-                <form action="/admin" method="GET" style="display: flex; gap: 5px;">
-                    <input type="text" name="q_user" placeholder="Buscar por ID, email, nome..." value="{{ request.args.get('q_user', '') }}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <button type="submit" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Buscar</button>
+                <form action="/admin" method="GET" style="display: flex; gap: 8px;">
+                    <input type="text" name="q_user" placeholder="ID, email, nome..." value="{{ request.args.get('q_user', '') }}" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; outline: none;">
+                    <button type="submit" class="admin-btn-blue" style="padding: 10px 20px; width: auto;"><i class="fas fa-search"></i></button>
                     {% if request.args.get('q_user') %}
-                        <a href="/admin" style="padding: 8px 10px; color: #ef4444; text-decoration: none; font-weight: bold;">Limpar</a>
+                        <a href="/admin" style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;"><i class="fas fa-times"></i></a>
                     {% endif %}
                 </form>
             </div>
 
-            <table class="admin-table">
-                <thead>                   
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Contato</th>
-                        <th>Nível Atual</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in usuarios %}
-                    <tr>
-
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>                   
                         <tr>
-                        <td><span style="color: #64748b; font-weight: bold; font-family: monospace;">#{{ u.id }}</span></td>
-                        <td>{{ u.nome }}</td>
-                        <td>{{ u.email or u.telefone }}</td>
-
-                        <td>
-                            {% if u.funcao == 'admin' %}
-                                <span style="background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Admin</span>
-                            {% elif u.funcao == 'mod' %}
-                                <span style="background: #2563eb; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Moderador</span>
-                            {% else %}
-                                <span style="background: #94a3b8; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Cidadão</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if u.id != session['user_id'] %}
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <form action="/admin/promover/{{ u.id }}" method="POST" style="margin: 0; display: flex; gap: 5px;">
-                                    <select name="papel" style="padding: 5px; border-radius: 4px;">
-                                        <option value="cidadao" {% if u.funcao == 'cidadao' %}selected{% endif %}>Cidadão</option>
-                                        <option value="mod" {% if u.funcao == 'mod' %}selected{% endif %}>Moderador</option>
-                                    </select>
-                                    <button type="submit" style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" title="Salvar Nível"><i class="fas fa-check"></i></button>
-                                </form>
-                                
-                                <form action="/admin/deletar_usuario/{{ u.id }}" method="POST" style="margin: 0;">
-                                    <button type="submit" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" onclick="return confirm('ATENÇÃO! Isso apagará o usuário e todas as publicações dele. Confirmar?');" title="Excluir Usuário">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            {% else %}
-                                <em style="color: #94a3b8; font-size: 0.8rem;">(Você)</em>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="5" style="text-align: center; color: #64748b;">Nenhum usuário encontrado na busca.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            <th>Cidadão</th>
+                            <th>Contato</th>
+                            <th>Nível</th>
+                            <th style="text-align: right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td>
+                                <p class="admin-item-title">{{ u.nome }}</p>
+                                <p class="admin-item-cat" style="color: #64748b; font-family: monospace;">#{{ u.id }}</p>
+                            </td>
+                            <td><p class="admin-item-address">{{ u.email or u.telefone }}</p></td>
+                            <td>
+                                {% if u.funcao == 'admin' %}
+                                    <span style="background: #1e293b; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">Admin</span>
+                                {% elif u.funcao == 'mod' %}
+                                    <span style="background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">Moderador</span>
+                                {% else %}
+                                    <span style="background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">Cidadão</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right;">
+                                {% if u.id != session['user_id'] %}
+                                <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
+                                    <form action="/admin/promover/{{ u.id }}" method="POST" style="margin: 0; display: flex; gap: 5px;">
+                                        <select name="papel" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; background: #f8fafc; font-size: 0.85rem;">
+                                            <option value="cidadao" {% if u.funcao == 'cidadao' %}selected{% endif %}>Cidadão</option>
+                                            <option value="mod" {% if u.funcao == 'mod' %}selected{% endif %}>Moderador</option>
+                                        </select>
+                                        <button type="submit" style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;" title="Salvar Nível"><i class="fas fa-check"></i></button>
+                                    </form>
+                                    
+                                    <form action="/admin/deletar_usuario/{{ u.id }}" method="POST" style="margin: 0;">
+                                        <button type="submit" class="admin-btn-trash" onclick="return confirm('ATENÇÃO! Apagar usuário e publicações?');" title="Excluir Usuário">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                    <em style="color: #94a3b8; font-size: 0.85rem; font-weight: bold;">(Você)</em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Nenhum usuário encontrado na busca.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% endif %}
         
-        <div class="table-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <h3 style="margin: 0;">Diretório</h3>
+        <div class="admin-card-white">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <h2 class="admin-card-title" style="margin: 0;"><i class="fas fa-map-marked-alt" style="color: #64748b;"></i> Registros do Diretório</h2>
                 
-                <form action="/admin" method="GET" style="display: flex; gap: 5px;">
-                    <input type="text" name="q_dir" placeholder="Buscar local por nome..." value="{{ request.args.get('q_dir', '') }}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <button type="submit" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Buscar</button>
+                <form action="/admin" method="GET" style="display: flex; gap: 8px;">
+                    <input type="text" name="q_dir" placeholder="Buscar local..." value="{{ request.args.get('q_dir', '') }}" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; outline: none;">
+                    <button type="submit" class="admin-btn-blue" style="padding: 10px 20px; width: auto;"><i class="fas fa-search"></i></button>
                     {% if request.args.get('q_dir') %}
-                        <a href="/admin" style="padding: 8px 10px; color: #ef4444; text-decoration: none; font-weight: bold;">Limpar</a>
+                        <a href="/admin" style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;"><i class="fas fa-times"></i></a>
                     {% endif %}
                 </form>
             </div>
             
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Categoria/Sub</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in itens_diretorio %}
-                    <tr>
-                        <td>{{ item.nome }}</td>
-                        <td>
-                            {% if item.tipo == 'Publico' %}
-                                <span class="badge" style="background:#dbeafe; color:#1e40af;">Público</span>
-                            {% else %}
-                                <span class="badge" style="background:#fce7f3; color:#9d174d;">Privado</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ item.categoria }} <small>({{ item.subcategoria }})</small></td>
-                        <td style="display: flex; gap: 10px; align-items: center;">
-                            <a href="/admin/editar_diretorio/{{ item.id }}" style="background: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: bold;">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                            
-                            {% if session.get('user_funcao') == 'admin' %}
-                            <form action="/admin/deletar_diretorio/{{ item.id }}" method="POST" style="margin: 0;">
-                                <button type="submit" style="background: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="return confirm('CUIDADO! Tem certeza que deseja apagar este local definitivamente?');">
-                                    <i class="fas fa-trash-alt"></i> Excluir
-                                </button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">Nenhum local encontrado na busca.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Nome / Categoria</th>
+                            <th>Detalhes</th>
+                            <th style="text-align: right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in itens_diretorio %}
+                        <tr>
+                            <td>
+                                <p class="admin-item-title">{{ item.nome }}</p>
+                                <p class="admin-item-cat">{{ item.categoria }} <span style="color: #94a3b8;">&bull;</span> {{ item.subcategoria }}</p>
+                            </td>
+                            <td>
+                                {% if item.tipo == 'Publico' %}
+                                    <span style="background:#dbeafe; color:#1e40af; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; display: inline-block;">Público</span>
+                                {% else %}
+                                    <span style="background:#fce7f3; color:#9d174d; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; display: inline-block;">Privado/ONG</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end;">
+                                    <a href="/admin/editar_diretorio/{{ item.id }}" style="color: #2563eb; text-decoration: none; font-weight: bold; font-size: 0.9rem; transition: 0.2s;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#2563eb'">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    
+                                    {% if session.get('user_funcao') == 'admin' %}
+                                    <form action="/admin/deletar_diretorio/{{ item.id }}" method="POST" style="margin: 0;">
+                                        <button type="submit" class="admin-btn-trash" onclick="return confirm('CUIDADO! Apagar local definitivamente?');">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #64748b; padding: 20px;">Nenhum local encontrado na busca.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* CSS Específico para o Form Grid do Admin */
-    .form-grid {
+    .admin-form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Duas colunas */
-        gap: 15px;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 15px;
     }
     .full-width {
-        grid-column: span 2; /* Ocupa a largura total */
+        grid-column: span 2;
+    }
+    .admin-input-light {
+        margin-bottom: 20px !important; 
     }
     @media(max-width: 700px) {
-        .form-grid { grid-template-columns: 1fr; }
+        .admin-form-grid { grid-template-columns: 1fr; }
         .full-width { grid-column: span 1; }
-        .admin-card { grid-column: span 1 !important; }
     }
 </style>
 {% endblock %}

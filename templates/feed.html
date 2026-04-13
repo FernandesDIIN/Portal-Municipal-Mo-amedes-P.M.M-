@@ -1,33 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="feed-header" style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        
+<div style="max-width: 750px; margin: 0 auto;">
+
+    <div class="feed-header" style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            
         <div class="header-text">
             <h2 style="margin: 0 0 8px 0; font-size: 2.2rem; color: #1e293b;">Feed da Comunidade</h2>
-            <p style="margin: 0; color: #64748b; font-size: 1.1rem;">Notícias, eventos e classificados de Moçâmedes.</p>
+            <p style="margin: 0; color: #64748b; font-size: 1.1rem;">Notícias, eventos e alertas de Moçâmedes.</p>
         </div>
         
         <div class="feed-actions" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between; width: 100%;">
             
             <form action="/feed" method="GET" style="display: flex; gap: 10px; flex: 1; min-width: 250px;">
                 <input type="text" name="q" placeholder="Pesquisar nas postagens e notícias..." value="{{ request.args.get('q', '') }}" style="flex: 8; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; outline: none; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                {% if request.args.get('tag') %}
+                    <input type="hidden" name="tag" value="{{ request.args.get('tag') }}">
+                {% endif %}
                 <button type="submit" style="flex: 2; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fas fa-search"></i> Buscar
                 </button>
             </form>
             
-            <a href="/criar_postagem" class="btn-create" style="white-space: nowrap; padding: 12px 20px; background: #16a34a; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2); transition: 0.2s;">
+            <a href="/criar_postagem" class="btn-create" style="white-space: nowrap; padding: 12px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); transition: 0.2s;">
                 <i class="fas fa-plus-circle"></i> Nova Postagem
             </a>
-            
+        </div>
+
+        {% set tag_atual = request.args.get('tag', 'Todos') %}
+        <div class="feed-tags-container">
+            <a href="/feed" class="feed-tag-pill {% if tag_atual == 'Todos' or not request.args.get('tag') %}active{% endif %}">Todos</a>
+            <a href="/feed?tag=Notícia" class="feed-tag-pill {% if tag_atual == 'Notícia' %}active{% endif %}">Notícia</a>
+            <a href="/feed?tag=Venda" class="feed-tag-pill {% if tag_atual == 'Venda' %}active{% endif %}">Venda</a>
+            <a href="/feed?tag=Evento" class="feed-tag-pill {% if tag_atual == 'Evento' %}active{% endif %}">Evento</a>
+            <a href="/feed?tag=Utilidade Pública" class="feed-tag-pill {% if tag_atual == 'Utilidade Pública' %}active{% endif %}">Utilidade Pública</a>
         </div>
     </div>
 
     <div class="posts-list">
-        {% for post in postagens %}
+        {% for post in postagens if tag_atual == 'Todos' or post.categoria == tag_atual %}
             
-            <div class="post-card {% if post.fixado %}post-fixado{% endif %}" style="position: relative; background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+            <div class="post-card {% if post.fixado %}post-fixado{% endif %}" style="position: relative; background: white; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
                 
                 {% if session.get('user_funcao') in ['admin', 'mod'] %}
                 <form action="/toggle_fixar/{{ post.id }}" method="POST" style="position: absolute; top: 15px; right: 15px; margin: 0; z-index: 10;">
@@ -37,10 +50,10 @@
                 </form>
                 {% endif %}
 
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-right: 40px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding-right: 40px;">
                     
                     <a href="/perfil/{{ post.usuario_id }}" style="text-decoration: none;">
-                        <div style="position: relative; width: 45px; height: 45px; background: #16a34a; border: 2px solid #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: white !important; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+                        <div style="position: relative; width: 48px; height: 48px; background: #1e3a8a; border: 2px solid #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: white !important; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
                             <span style="line-height: 1; position: absolute; z-index: 1;">{{ post.autor_nome[:2] }}</span>                            
                             {% if post.foto_perfil %}
                                 <img src="{{ url_for('static', filename='uploads/perfis/' + post.foto_perfil) }}" style="position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 2;" onerror="this.style.display='none'">
@@ -57,19 +70,19 @@
                             <span style="color: #ca8a04; font-size: 0.75rem;" title="Postagem Fixada no Topo"><i class="fas fa-thumbtack"></i></span>
                             {% endif %}
                         </div>
-                        <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                        <div style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 8px; margin-top: 3px;">
                             <span><i class="far fa-clock"></i> {{ post.data_criacao[:10] }}</span>
                             <span>&bull;</span>
-                            <span class="post-tag {{ post.categoria }}" style="font-size: 0.75rem; padding: 2px 8px;">{{ post.categoria }}</span>
+                            <span class="post-tag {{ post.categoria }}" style="font-size: 0.75rem; padding: 2px 8px; margin-bottom: 0;">{{ post.categoria }}</span>
                         </div>
                     </div>
                 </div>
 
-                <h3 style="margin: 0 0 10px 0; font-size: 1.25rem; color: #0f172a;">{{ post.titulo }}</h3>
+                <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; color: #0f172a;">{{ post.titulo }}</h3>
                 <p style="color: #334155; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap;">{{ post.conteudo }}</p>
                 
                 {% if post.imagem1 or post.imagem2 %}
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; border-radius: 8px; overflow: hidden;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-radius: 8px; overflow: hidden;">
                     {% if post.imagem1 %}
                         <img src="{{ url_for('static', filename='uploads/feed_imagens/' + post.imagem1) }}" class="lightbox-trigger" style="flex: 1; height: 250px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; cursor: zoom-in;" alt="Foto 1 da postagem">
                     {% endif %}
@@ -109,25 +122,20 @@
             </div>
 
         {% else %}
-            <div style="text-align: center; color: #64748b; padding: 40px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
-                <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 15px; color: #cbd5e1;"></i>
-                <h3>Nenhuma publicação no feed ainda.</h3>
-                <p>Seja o primeiro a partilhar algo com Moçâmedes!</p>
+            <div style="text-align: center; color: #64748b; padding: 50px 20px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                <i class="fas fa-newspaper" style="font-size: 3.5rem; margin-bottom: 20px; color: #cbd5e1;"></i>
+                <h3 style="margin-bottom: 10px; color: #334155;">Nenhuma publicação encontrada.</h3>
+                <p>Seja o primeiro a partilhar algo nesta categoria!</p>
             </div>
         {% endfor %}
         
     </div>
-</div>
 
-<script>
-// A Mágica do AJAX: Atualiza sem piscar a página!
+</div> <script>
 function votar(postId, botaoClicado) {
-    // Faz o pedido aos bastidores (Python)
     fetch(`/upvote/${postId}`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     })
     .then(response => {
         if (response.status === 401) {
@@ -138,22 +146,24 @@ function votar(postId, botaoClicado) {
     })
     .then(data => {
         if (data) {
-            // Pega o elemento do número
             let contador = document.getElementById(`count-${postId}`);
-            
-            // Atualiza o número na tela imediatamente
             contador.innerText = data.upvotes;
             
-            // Pinta a seta de Verde ou Cinza dependendo do que o Python respondeu
             if (data.acao === 'adicionado') {
                 botaoClicado.classList.add('active');
+                // Altera as cores imediatamente sem precisar recarregar o CSS
+                botaoClicado.style.background = '#eff6ff';
+                botaoClicado.style.borderColor = '#bfdbfe';
+                botaoClicado.style.color = '#2563eb';
             } else {
                 botaoClicado.classList.remove('active');
+                botaoClicado.style.background = '#f8fafc';
+                botaoClicado.style.borderColor = '#e2e8f0';
+                botaoClicado.style.color = '#64748b';
             }
         }
     })
     .catch(error => console.error("Erro ao votar:", error));
 }
 </script>
-
 {% endblock %}

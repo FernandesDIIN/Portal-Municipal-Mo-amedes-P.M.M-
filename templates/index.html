@@ -8,15 +8,17 @@
         <div class="hero-content">
             <h1>Bem-vindo ao Portal de Moçâmedes</h1>
             <p>Sua central única de informações, serviços e conexão com a nossa comunidade no Namibe.</p>
-            <div class="hero-buttons" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 900px; margin: 0 auto;">
-                <a href="/diretorio" class="btn btn-white" style="white-space: nowrap; padding: 10px 20px;">Ver Diretório</a>
-                <a href="/feed" class="btn btn-blue" style="white-space: nowrap; padding: 10px 20px;">Feed Comunitário</a>
-                <a href="/galeria" class="btn btn-white" style="background: transparent; color: white; border: 2px solid white; white-space: nowrap; padding: 10px 20px;">Galeria</a>
+            
+            <div class="hero-buttons-container" style="display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 15px; padding-bottom: 15px; -webkit-overflow-scrolling: touch; width: 100%; max-width: 900px; margin: 0 auto; scrollbar-width: none;">
+                
+                <a href="/diretorio" class="btn btn-white" style="flex-shrink: 0; white-space: nowrap; padding: 10px 20px;">Ver Diretório</a>
+                <a href="/feed" class="btn btn-blue" style="flex-shrink: 0; white-space: nowrap; padding: 10px 20px;">Feed Comunitário</a>
+                <a href="/galeria" class="btn btn-white" style="flex-shrink: 0; background: transparent; color: white; border: 2px solid white; white-space: nowrap; padding: 10px 20px;">Galeria</a>
                 
                 {% if 'user_id' in session %}
-                    <a href="/perfil/{{ session['user_id'] }}" class="btn" style="background: #fbbf24; color: #1e293b; border: 2px solid #fbbf24; font-weight: bold; white-space: nowrap; padding: 10px 20px;">Meu Perfil</a>
+                    <a href="/perfil/{{ session['user_id'] }}" class="btn" style="flex-shrink: 0; background: #fbbf24; color: #1e293b; border: 2px solid #fbbf24; font-weight: bold; white-space: nowrap; padding: 10px 20px;">Meu Perfil</a>
                 {% else %}
-                    <a href="/login" class="btn" style="background: #fbbf24; color: #1e293b; border: 2px solid #fbbf24; font-weight: bold; white-space: nowrap; padding: 10px 20px;">Entrar / Registar</a>
+                    <a href="/login" class="btn" style="flex-shrink: 0; background: #fde047; color: #854d0e; border: 2px solid #fde047; font-weight: bold; white-space: nowrap; padding: 10px 20px; text-decoration: none; border-radius: 8px;">Entrar / Registar</a>
                 {% endif %}
             </div>
         </div>
@@ -48,12 +50,6 @@
                 <div class="icon-box text-amber"><i class="fas fa-shopping-bag"></i></div>
                 <h3>Comércio e Hospedaria</h3>
                 <p>Apoie os negócios locais e encontre o que precisa.</p>
-            </a>
-
-            <a href="/marketplace" class="card-item">
-                <div class="icon-box" style="color: #16a34a;"><i class="fas fa-tools"></i></div>
-                <h3>Serviços e Vendas</h3>
-                <p>Ofertas de serviços e compra e venda.</p>
             </a>
 
             <a href="{{ url_for('diretorio', categoria='Turismo') }}" class="card-item">

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container" style="max-width: 1000px; padding-top: 40px; margin-bottom: 50px;">
+<div class="container" style="max-width: 750px; margin: 0 auto; padding-top: 40px; margin-bottom: 50px;">
     
     <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e2e8f0; margin-bottom: 40px;">
         
@@ -30,7 +30,7 @@
             <form action="/perfil/{{ usuario.id }}" method="POST" style="display: flex; gap: 10px; width: 100%;">
                 <input type="hidden" name="acao" value="atualizar_nome">
                 <input type="text" name="nome" value="{{ usuario.nome }}" required style="flex: 8; width: 80%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                <button type="submit" style="flex: 2; width: 20%; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Salvar</button>
+                <button type="submit" style="flex: 2; width: 20%; background: #2563eb; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Salvar</button>
             </form>
             
         </div>
@@ -89,7 +89,7 @@
                 {% if fotos|length > 4 %}
                 <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
                     
-                    <button id="btn-mais-perf" onclick="document.querySelectorAll('.foto-extra-perf').forEach(el => el.style.display='block'); this.style.display='none'; document.getElementById('btn-menos-perf').style.display='inline-block';" style="background: transparent; color: #16a34a; border: 2px solid #16a34a; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                    <button id="btn-mais-perf" onclick="document.querySelectorAll('.foto-extra-perf').forEach(el => el.style.display='block'); this.style.display='none'; document.getElementById('btn-menos-perf').style.display='inline-block';" style="background: transparent; color: #2563eb; border: 2px solid #2563eb; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;">
                         <i class="fas fa-images"></i> Ver todas as {{ fotos|length }} fotos
                     </button>
 

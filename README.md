@@ -1,101 +1,93 @@
-# 🇦🇴 Portal Municipal
+# Portal Municipal de Moçâmedes (P.M.M)
 
-O **Portal Mucicipal Moçâmedes** é uma plataforma web desenvolvida como Projeto de Aptitidão Profissional (PAP). O objetivo do projeto é atuar como um *hub* centralizado digital para o município de Moçâmedes (província do Namibe, Angola), conectando cidadãos, turistas e comércio local em um único espaço interativo.
+O Portal Municipal de Moçâmedes é uma plataforma web desenvolvida como Projeto de Aptidão Profissional (PAP) / Trabalho de Conclusão de Curso. 
 
-## 🚀 Principais Funcionalidades
+O objetivo central do projeto é atuar como o guia definitivo de bolso para o município (província do Namibe, Angola). A plataforma foi construída para responder de forma rápida e clara à pergunta diária dos cidadãos: "Onde fica e como chego lá?", centralizando endereços, contactos e informações comunitárias num único ambiente digital seguro e organizado.
 
-O sistema foi arquitetado em módulos para oferecer uma experiência completa de comunidade:
+## Principais Funcionalidades
 
-* **📖 Diretório de Locais e Serviços:** Um catálogo interativo de instituições públicas, hospitais, escolas e pontos turísticos. Conta com informações de contato, localização e galeria de imagens.
-* **⭐ Sistema de Avaliações:** Usuários podem classificar locais de 1 a 5 estrelas e deixar comentários (com cálculo automático de média e proteção contra spam).
-* **🗣️ Feed Comunitário (Relevância Dinâmica):** Um mural de notícias e avisos equipado com um algoritmo de decadência temporal (estilo Reddit). Posts ganham destaque baseados em *Upvotes* e no tempo de publicação.
-* **🛒 Classificados / Marketplace:** Espaço dedicado para os cidadãos anunciarem compra, venda, imóveis e prestação de serviços.
-* **👤 Perfis e Memorial (Galeria Cidadã):** Cada usuário possui um perfil público gerado dinamicamente com avatares automáticos (UI-Avatars) e um "Memorial" para postar fotos das suas vivências na cidade.
-* **🛡️ Moderação e Segurança (RBAC):** Sistema robusto de Controle de Acesso Baseado em Cargos (Cidadão, Moderador e Administrador), permitindo edição própria e moderação de conteúdo impróprio em todo o site.
+O sistema foi arquitetado para oferecer uma experiência focada na utilidade pública e na navegação urbana:
 
-## 🛠️ Tecnologias Utilizadas
+* Diretório Municipal: Um catálogo interativo e categorizado de instituições públicas, hospitais, escolas e comércio local, contendo informações exatas de contacto e localização.
+* Sistema de Avaliações: Os cidadãos podem classificar os locais do diretório de 1 a 5 estrelas e deixar comentários, ajudando a criar um padrão de qualidade no atendimento local.
+* Mural da Comunidade (Feed): Um espaço para partilha de notícias, eventos e avisos de utilidade pública. Utiliza um algoritmo de relevância dinâmico que destaca as postagens com base no número de votos (Upvotes) e no tempo decorrido desde a publicação.
+* Galeria e Memorial Cidadão: Uma galeria global para preservar a memória e a beleza de Moçâmedes, além de perfis individuais onde os cidadãos possuem o seu próprio memorial fotográfico.
+* Moderação e Segurança: Sistema de controlo de acesso baseado em níveis (Cidadão, Moderador e Administrador), com um painel de gestão exclusivo para garantir a veracidade dos locais e a segurança do conteúdo.
 
-* **Back-end:** Python 3, Flask (Framework Web)
-* **Banco de Dados:** SQLite3 (Relacional, leve e embutido)
-* **Front-end:** HTML5, CSS3, Vanilla JavaScript (AJAX/Fetch API para interações sem recarregar a página)
-* **Template Engine:** Jinja2
-* **Integração Externa:** UI-Avatars API
+## Tecnologias Utilizadas
 
-## ⚙️ Como Executar o Projeto Localmente
+* Back-end: Python 3, Flask (Microframework Web)
+* Banco de Dados: SQLite3 (Relacional, leve e embutido)
+* Front-end: HTML5, CSS3 puro (Vanilla), JavaScript (para interações dinâmicas e assíncronas)
+* Template Engine: Jinja2
+* Integração Externa: API do UI-Avatars para geração automática de imagens de perfil
 
-Siga os passos abaixo para rodar o Portal Moçâmedes na sua máquina:
+## Como Executar o Projeto Localmente
+
+Siga os passos abaixo para preparar o ambiente e rodar o Portal na sua máquina:
 
 ### 1. Pré-requisitos
-Certifique-se de ter o **Python** instalado na sua máquina.
+Certifique-se de ter o Python 3 instalado no seu computador.
 
 ### 2. Clonar o Repositório
-```bash
-git clone [https://github.com/FernandesDIIN/Portal-Municipal-P.M.-Mocamedes.git)
-cd portal-mocamedes
-```
+Abra o terminal e execute:
+git clone https://github.com/FernandesDIIN/Portal-Municipal-P.M.-Mocamedes.git
+cd Portal-Municipal-P.M.-Mocamedes
 
-### 3. Criar e Ativar o Ambiente Virtual (Recomendado)
-```bash
-# No Windows
+### 3. Criar e Ativar o Ambiente Virtual
+No Windows:
 python -m venv venv
 venv\Scripts\activate
 
-# No Linux/Mac
+No Linux ou Mac:
 python3 -m venv venv
 source venv/bin/activate
-```
 
 ### 4. Instalar as Dependências
-(Nota: Certifique-se de criar um arquivo requirements.txt com as bibliotecas, ou instale o Flask manualmente).
+Certifique-se de que possui o arquivo `requirements.txt` na raiz do projeto. Para instalar todas as bibliotecas necessárias, execute o comando abaixo no seu terminal:
+
 ```bash
 pip install -r requirements.txt
-ou
-pip install flask werkzeug
 ```
 
 ### 5. Inicializar o Banco de Dados
-Para criar as tabelas necessárias, execute os scripts de banco na raiz do projeto:
-```bash
+Caso seja a primeira execução e precise configurar as tabelas e perfis, execute os scripts de preparação:
 python atualizar_upvotes.py
 python corrigir_avaliacoes.py
 python atualizar_perfil.py
-```
 
 ### 6. Executar a Aplicação
-```bash
+Inicie o servidor local com o comando:
 python app.py
-```
-O servidor será iniciado. Acesse no seu navegador: http://127.0.0.1:5000
 
-📂 Estrutura do Projeto
-```Plaintext
+O servidor estará a rodar. Abra o seu navegador e aceda a: http://127.0.0.1:5000
+
+## Estrutura do Projeto
+
 portal_mocamedes/
-│
-├── app.py                   # Arquivo principal (Rotas e Lógica de Negócio)
-├── banco.db                 # Banco de Dados SQLite (gerado automaticamente)
-├── static/                  # Arquivos estáticos
-│   ├── css/                 # Folhas de estilo (style.css)
-│   ├── img/                 # Imagens fixas do layout
-│   └── uploads/             # Imagens enviadas pelos usuários (capas, galeria, perfil)
-│
-├── templates/               # Páginas em HTML (Jinja2)
-│   ├── base.html            # Estrutura mestre (Header e Footer)
-│   ├── index.html           # Página Inicial
-│   ├── diretorio.html       # Catálogo de locais
-│   ├── feed.html            # Mural da comunidade
-│   ├── perfil.html          # Memorial do usuário
-│   └── ...                  # Outras páginas e formulários CRUD
-│
-└── README.md                # Documentação do projeto
-```
+|-- app.py                   (Cérebro do sistema: Rotas e Lógica Python)
+|-- banco.db                 (Banco de Dados SQLite gerado automaticamente)
+|-- static/                  (Arquivos públicos)
+|   |-- css/                 (Folha de estilos principal - style.css)
+|   |-- img/                 (Imagens fixas de layout)
+|   |-- uploads/             (Arquivos e fotos enviadas pelos utilizadores)
+|-- templates/               (Interfaces HTML)
+|   |-- base.html            (Estrutura mestre de navegação)
+|   |-- index.html           (Página Inicial)
+|   |-- diretorio.html       (Catálogo da cidade)
+|   |-- feed.html            (Mural de notícias e eventos)
+|   |-- perfil.html          (Página de utilizador e memorial)
+|   |-- admin.html           (Painel de gestão)
+|-- README.md                (Documentação)
 
-ADM ACESS
-```text
-admin: admin@mocamedes.ao
-senha: admin123
-```
+## Acesso Administrativo (Testes)
 
-👨‍💻 Autor
-Desenvolvido com dedicação por Tchivangulula D. Joao Fernandes [FernandesDIIN] como Trabalho de Conclusão de Curso (TCC) do ensino medio.
-Sinta-se à vontade para contribuir, abrir issues ou enviar pull requests!
-OBRIGADOO, Assistam Andor, que experiencia incrivel!
+Para avaliar as funcionalidades do Painel de Gestão, utilize as seguintes credenciais:
+* Email: admin@mocamedes.ao
+* Senha: admin123
+
+## Autor
+
+Desenvolvido com dedicação por Tchivangulula D. Joao Fernandes [FernandesDIIN] como Projeto de Aptidão Profissional (PAP) do ensino médio. Sinta-se à vontade para contribuir, abrir issues ou explorar o código.
+
+Nota do Autor: Assistam à série Andor, é uma experiência incrível!

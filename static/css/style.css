@@ -717,22 +717,6 @@ input, button {
     border-color: #2c3e50;
 }
 
-/* --- CORREÇÃO DO MENU (NAVBAR) --- */
-.navbar {
-    background-color: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.nav-links a {
-    color: #1e293b !important; /* Cor cinza escuro quase preto */
-    font-weight: 600;
-    opacity: 1 !important;
-}
-
-.nav-links a:hover {
-    color: #16a34a !important; /* Verde ao passar o mouse */
-}
-
 /* --- ATUALIZAÇÕES DO MARKETPLACE --- */
 
 /* Linha do título e botão Anunciar retangular */
@@ -1272,4 +1256,277 @@ input, button {
     padding: 12px; 
     border-radius: 8px; 
     font-weight: bold;
+}
+
+/* =========================================
+   ESTILOS EXCLUSIVOS DA NOVA NAVEGAÇÃO
+========================================= */
+
+/* Reset Global - Garante que nada grude nas bordas */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Fonte limpa */
+}
+
+/* O Botão 'Entrar' Estilo Protótipo (Pílula Branca) */
+.btn-entrar-proto {
+    background-color: rgb(255, 255, 255);
+    color: #1e3a8a; /* Azul escuro do Portal */
+    padding: 8px 22px;
+    border-radius: 50px; /* Formato Pílula */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+    border: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-entrar-proto:hover {
+    background-color: #f1f5f9; /* Leve cinza no hover */
+    color: #1d4ed8; /* Azul mais vivo */
+}
+
+/* Botão Vermelho de Sair (Protótipo) */
+.btn-sair-red {
+    background-color: #ef4444; /* Vermelho vibrante */
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.85rem;
+    border: none;
+    transition: background 0.2s;
+}
+
+.btn-sair-red:hover {
+    background-color: #dc2626; /* Vermelho mais escuro no hover */
+}
+
+/* botão de sair estilo protótipo (azul escuro) */
+.btn-sair-proto {
+    background-color: rgba(0, 0, 0, 0.15); /* escurece o azul que estiver por trás */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 1rem;
+    border: none;
+    transition: background 0.2s;
+}
+
+.btn-sair-proto:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* =========================================
+   NOVO PAINEL DE ADMINISTRAÇÃO
+========================================= */
+.admin-page-bg {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.admin-header-dark {
+    background-color: #1e293b;
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.admin-header-dark h1 {
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+}
+
+.admin-header-dark p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.admin-card-white {
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.admin-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #1e293b;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.admin-card-title i {
+    color: #2563eb;
+}
+
+.admin-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+/* Campos de texto claros (Estilo da Imagem) */
+.admin-input-light {
+    width: 100%;
+    background-color: #ffffff; /* Fundo branco */
+    color: #1e293b; /* Texto escuro */
+    border: 1px solid #cbd5e1; /* Borda cinza clara */
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-input-light:focus {
+    border-color: #2563eb; /* Fica azul ao clicar */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Brilho suave */
+}
+
+.admin-input-light::placeholder {
+    color: #94a3b8; /* Cinza do placeholder */
+}
+
+.admin-btn-blue {
+    background-color: #2563eb;
+    color: white;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-btn-blue:hover {
+    background-color: #1d4ed8;
+}
+
+/* Tabela de registros */
+.admin-table-container {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.admin-item-title {
+    font-weight: bold;
+    color: #1e293b;
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+}
+
+.admin-item-cat {
+    color: #2563eb;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.admin-item-address {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.admin-btn-trash {
+    color: #ef4444;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.admin-btn-trash:hover {
+    transform: scale(1.1);
+}
+
+/* =========================================
+   TAGS DO FEED (FILTROS EM PÍLULA)
+========================================= */
+.feed-tags-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none; /* Esconde a barra de scroll no Firefox */
+}
+
+.feed-tags-container::-webkit-scrollbar {
+    display: none; /* Esconde a barra de scroll no Chrome/Safari */
+}
+
+.feed-tag-pill {
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid #cbd5e1;
+    background-color: white;
+    color: #475569;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.feed-tag-pill:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+}
+
+/* O estado ativo (Azul da tua imagem) */
+.feed-tag-pill.active {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* CORREÇÃO DO UPVOTE (Remoção do Verde) */
+.btn-upvote:hover {
+    color: #2563eb !important; /* Passa a ser azul no hover */
+}
+.btn-upvote.active {
+    color: #2563eb !important; /* Passa a ser azul quando votado */
 }

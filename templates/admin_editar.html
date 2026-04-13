@@ -1,81 +1,93 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="admin-container" style="max-width: 800px; margin: 40px auto;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2><i class="fas fa-edit"></i> Editar Local: {{ item.nome }}</h2>
-        <a href="/admin" style="color: #64748b; font-weight: bold; text-decoration: none;"><i class="fas fa-arrow-left"></i> Voltar</a>
-    </div>
+<div class="admin-page-bg">
+    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 15px;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.5rem;"><i class="fas fa-edit" style="color: #2563eb;"></i> Editar: {{ item.nome }}</h2>
+            <a href="/admin" style="background: #e2e8f0; color: #475569; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem;"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
 
-    <div class="admin-card" style="padding: 30px;">
-        <form method="POST" action="/admin/editar_diretorio/{{ item.id }}" enctype="multipart/form-data" class="form-grid">
-            
-            <div class="form-group">
-                <label>Nome do Local</label>
-                <input type="text" name="nome" value="{{ item.nome }}" required>
-            </div>
+        <div class="admin-card-white">
+            <form method="POST" action="/admin/editar_diretorio/{{ item.id }}" enctype="multipart/form-data" class="admin-form-grid">
+                
+                <div>
+                    <label class="admin-label">Nome do Local</label>
+                    <input type="text" name="nome" value="{{ item.nome }}" class="admin-input-light" required>
+                </div>
 
-            <div class="form-group">
-                <label>Categoria Principal</label>
-                <select name="categoria" class="form-select">
-                    <option value="Saúde" {% if item.categoria == 'Saúde' %}selected{% endif %}>Saúde</option>
-                    <option value="Educação" {% if item.categoria == 'Educação' %}selected{% endif %}>Educação</option>
-                    <option value="Comércio" {% if item.categoria == 'Comércio' %}selected{% endif %}>Comércio e Hospedaria</option>
-                    <option value="Turismo" {% if item.categoria == 'Turismo' %}selected{% endif %}>Turismo</option>
-                    <option value="Instituições" {% if item.categoria == 'Instituições' %}selected{% endif %}>Instituições</option>
-                </select>
-            </div>
+                <div>
+                    <label class="admin-label">Categoria Principal</label>
+                    <select name="categoria" class="admin-input-light">
+                        <option value="Saúde" {% if item.categoria == 'Saúde' %}selected{% endif %}>Saúde</option>
+                        <option value="Educação" {% if item.categoria == 'Educação' %}selected{% endif %}>Educação</option>
+                        <option value="Comércio" {% if item.categoria == 'Comércio' %}selected{% endif %}>Comércio e Hospedaria</option>
+                        <option value="Turismo" {% if item.categoria == 'Turismo' %}selected{% endif %}>Turismo</option>
+                        <option value="Instituições" {% if item.categoria == 'Instituições' %}selected{% endif %}>Instituições</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Subcategoria</label>
-                <input type="text" name="subcategoria" value="{{ item.subcategoria }}">
-            </div>
+                <div>
+                    <label class="admin-label">Subcategoria</label>
+                    <input type="text" name="subcategoria" value="{{ item.subcategoria }}" class="admin-input-light">
+                </div>
 
-            <div class="form-group">
-                <label>Tipo de Gestão</label>
-                <select name="tipo" class="form-select">
-                    <option value="Publico" {% if item.tipo == 'Publico' %}selected{% endif %}>Público</option>
-                    <option value="Privado" {% if item.tipo == 'Privado' %}selected{% endif %}>Privado</option>
-                    <option value="ONG" {% if item.tipo == 'ONG' %}selected{% endif %}>ONG</option>
-                </select>
-            </div>
+                <div>
+                    <label class="admin-label">Tipo de Gestão</label>
+                    <select name="tipo" class="admin-input-light">
+                        <option value="Publico" {% if item.tipo == 'Publico' %}selected{% endif %}>Público</option>
+                        <option value="Privado" {% if item.tipo == 'Privado' %}selected{% endif %}>Privado</option>
+                        <option value="ONG" {% if item.tipo == 'ONG' %}selected{% endif %}>ONG</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Telefone</label>
-                <input type="text" name="telefone" value="{{ item.telefone }}">
-            </div>
+                <div>
+                    <label class="admin-label">Telefone</label>
+                    <input type="text" name="telefone" value="{{ item.telefone }}" class="admin-input-light">
+                </div>
 
-            <div class="form-group">
-                <label>Horário</label>
-                <input type="text" name="horario" value="{{ item.horario }}">
-            </div>
+                <div>
+                    <label class="admin-label">Horário</label>
+                    <input type="text" name="horario" value="{{ item.horario }}" class="admin-input-light">
+                </div>
 
-            <div class="form-group full-width" style="background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px;">
-                <label style="color: #475569;"><i class="fas fa-camera"></i> Atualizar Foto de Capa (Opcional)</label>
-                <p style="font-size: 0.8rem; margin: 0 0 10px 0; color: #64748b;">Se não escolher nenhuma, a foto atual será mantida.</p>
-                <input type="file" name="imagem" accept="image/*">
-            </div>
+                <div class="full-width" style="background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 6px; margin-bottom: 20px;">
+                    <label class="admin-label" style="margin-bottom: 5px;"><i class="fas fa-camera"></i> Atualizar Foto de Capa (Opcional)</label>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 0; margin-bottom: 10px;">Se não escolher nenhuma, a foto atual será mantida.</p>
+                    <input type="file" name="imagem" accept="image/*" style="width: 100%; font-size: 0.9rem;">
+                </div>
 
-            <div class="form-group full-width">
-                <label>Endereço Completo</label>
-                <input type="text" name="endereco" value="{{ item.endereco }}">
-            </div>
+                <div class="full-width">
+                    <label class="admin-label">Endereço Completo</label>
+                    <input type="text" name="endereco" value="{{ item.endereco }}" class="admin-input-light">
+                </div>
 
-            <div class="form-group full-width">
-                <label>Resumo</label>
-                <input type="text" name="descricao" value="{{ item.descricao_curta }}" maxlength="100">
-            </div>
+                <div class="full-width">
+                    <label class="admin-label">Resumo (Curto)</label>
+                    <input type="text" name="descricao" value="{{ item.descricao_curta }}" maxlength="100" class="admin-input-light">
+                </div>
 
-            <div class="form-group full-width">
-                <label>História Completa</label>
-                <textarea name="historia" rows="5" class="form-textarea">{{ item.historia_completa }}</textarea>
-            </div>
+                <div class="full-width">
+                    <label class="admin-label">História Completa</label>
+                    <textarea name="historia" rows="5" class="admin-input-light">{{ item.historia_completa }}</textarea>
+                </div>
 
-            <button type="submit" class="btn-submit full-width" style="background-color: #2563eb; font-size: 1.1rem;">
-                <i class="fas fa-save"></i> Salvar Alterações
-            </button>
-        </form>
+                <div class="full-width">
+                    <button type="submit" class="admin-btn-blue"><i class="fas fa-save"></i> Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<style>
+    .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 15px; }
+    .full-width { grid-column: span 2; }
+    .admin-input-light { margin-bottom: 20px !important; }
+    @media(max-width: 700px) {
+        .admin-form-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: span 1; }
+    }
+</style>
 {% endblock %}
